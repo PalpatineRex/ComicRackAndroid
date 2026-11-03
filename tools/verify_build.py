@@ -75,7 +75,19 @@ def main() -> None:
         checks.append((f"versionName {want_name}", apk.get_androidversion_name() == want_name))
     if want_code:
         checks.append((f"versionCode {want_code}", apk.get_androidversion_code() == str(want_code)))
-    checks.append(("classes count 1421", len(dex.get_classes()) == 1421))
+    names = {c.get_name() for c in dex.get_classes()}
+    checks.append(("classes: 1421 original + cra/fork/Natural",
+                   len(names) == 1422 and "Lcra/fork/Natural;" in names))
+    page_filter = method_ins(dex, "Lcom/cyo/comicrack/a/b/j;", "a", "(Ljava/lang/String;)Z") or []
+    filter_strings = {o.split(", ", 1)[-1].strip('"') for n, o in page_filter if n.startswith("const-string")}
+    checks.append(("CE: __MACOSX / AppleDouble files ignored in archives",
+                   {"__macosx/", "/._", "._"} <= filter_strings))
+    checks.append(("CE: HEIF/AVIF pages accepted (.heic .heif .avif)",
+                   {".heic", ".heif", ".avif"} <= filter_strings))
+    cmp_ = method_ins(dex, "Lcom/cyo/comicrack/a/a/ce;", "compareTo") or []
+    checks.append(("CE: natural page order (ce.compareTo -> Natural.compare)",
+                   any("Lcra/fork/Natural;->compare(" in o for _, o in cmp_)
+                   and not any("compareToIgnoreCase" in o for _, o in cmp_)))
 
     ok = True
     for label, passed in checks:

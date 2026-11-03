@@ -26,7 +26,7 @@ will poll for updates. Others can use this fork as a base.
 1. `patch_lvl.py base.apk s1.apk` (license check; verified identical to the circulating crack)
 2. `patch_fork.py s1.apk s2.apk` (EULA skipped, About and Settings links)
 3. `patch_manifest.py s2.apk s3.apk --version-name X --version-code N` (targetSdk 25)
-4. `patch_dex_strings.py s3.apk s4.apk --apktool apktool_2.9.3.jar` (Help button URL; needs Java)
+4. `patch_smali.py s3.apk s4.apk --apktool apktool_2.9.3.jar` (Help button URL; needs Java)
 5. `verify_build.py s4.apk --version-name X --version-code N` (all checks must pass)
 6. `sign_v1.py sign s4.apk out.apk key.pem cert.pem`
 

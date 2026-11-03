@@ -6,7 +6,7 @@ Usage:
            --apktool apktool.jar --key key.pem --cert cert.pem --out OUT.apk
 
 Steps (each tool is also usable alone, see docs/PLAN.md):
-  patch_lvl -> patch_fork -> patch_manifest -> patch_dex_strings -> verify_build -> sign_v1
+  patch_lvl -> patch_fork -> patch_manifest -> patch_smali -> verify_build -> sign_v1
 Needs Python 3.10+, Java (for apktool), and pip packages: cryptography, androguard, loguru.
 Stops at the first failure; nothing is signed if verification fails.
 """
@@ -57,7 +57,7 @@ def main() -> None:
         step("py", t("patch_lvl.py"), base, s[0])
         step("py", t("patch_fork.py"), s[0], s[1])
         step("py", t("patch_manifest.py"), s[1], s[2], "--ce-version", ce, "--rev", rev)
-        step("py", t("patch_dex_strings.py"), s[2], s[3], "--apktool", apktool)
+        step("py", t("patch_smali.py"), s[2], s[3], "--apktool", apktool)
         step("py", t("verify_build.py"), s[3], "--version-name", name, "--version-code", str(code))
         step("py", t("sign_v1.py"), "sign", s[3], out, key, cert)
     print(f"done: {out} ({name}, {code})")
