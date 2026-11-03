@@ -82,7 +82,7 @@ EDITS = [
     # CE 0.9.180: HEIF/AVIF support. Android decodes HEIF from 9 (API 28) and AVIF
     # from 12 (API 31), so the extensions are only accepted there.
     (J_SMALI,
-     "    :cond_3\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;",
+     "    :cond_3\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;",
      "    :cond_3\n" +
      block("sget v2, Landroid/os/Build$VERSION;->SDK_INT:I",
            "const/16 v3, 0x1c",
