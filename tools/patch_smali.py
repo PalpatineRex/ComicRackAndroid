@@ -125,6 +125,75 @@ EDITS = [
      articles_block() + "\n\n    sput-object v0, Lcom/cyo/common/bi;->h:[Ljava/lang/String;"),
 ]
 
+
+# Dead code (docs/PLAN.md): AdMob (com/a/a), twitter4j and the app's Twitter module
+# (com/cyo/common/b/a/*) have no use any more: no ads, no tweets. Every use of them
+# is cut here, then the classes are deleted and main() checks that nothing in the
+# remaining code still names a deleted class.
+RV = "smali/com/cyo/comicrack/viewer/"
+READER = RV + "ReaderActivity.smali"
+AD_LAYOUT = "smali/com/cyo/common/view/a.smali"  # banner slots; ad views only
+
+
+def ad_method_stub(header: str) -> tuple[str, str]:
+    return (AD_LAYOUT, header)
+
+
+# (smali file, start marker, end marker, replacement): text from the start marker up to
+# (not including) the first end marker after it is replaced. Start must occur once.
+CUTS = [
+    # Reader: interstitial ad. Q() built the ad (null when none): remove it, its field
+    # and both callers; "page-turn ad then Runnable" becomes "Runnable".
+    (READER, ".method private Q()Lcom/a/a/a/c;", ".method private R()V", ""),
+    (READER, ".field n:Lcom/a/a/a/c;\n\n", ".field o:Landroid/widget/Toast;", ""),
+    (READER,
+     "    :cond_6\n    invoke-direct {p0}, Lcom/cyo/comicrack/viewer/ReaderActivity;->Q()Lcom/a/a/a/c;",
+     ".end method",
+     "    :cond_6\n" +
+     block("if-eqz p1, :cond_2", "invoke-interface {p1}, Ljava/lang/Runnable;->run()V", "goto :goto_1") + "\n"),
+    (READER,
+     "    .line 830\n    invoke-direct {p0}, Lcom/cyo/comicrack/viewer/ReaderActivity;->Q()Lcom/a/a/a/c;\n\n",
+     "    .line 832", "    .line 830\n"),
+    # Reader: snapshot menu "Save / Tweet / Share" -> "Save / Share" (gu keeps its index
+    # shift for the two-item menu; its Tweet case, which built the dialog gv, is gone).
+    (READER,
+     "    invoke-static {p0}, Lcom/cyo/common/ag;->a(Landroid/content/Context;)Z\n\n    move-result v3\n\n    if-eqz v3, :cond_a",
+     "    :goto_6\n    new-instance v2, Landroid/app/AlertDialog$Builder;",
+     block("const/4 v3, 0x0", "goto :cond_a") + "\n\n"),
+    (RV + "gu.smali", "    .line 2249\n    :pswitch_1\n", "    .line 2278\n    :cond_1",
+     "    :pswitch_1\n" + block("goto :goto_0") + "\n\n"),
+    # Rating dialog OK: rating and review are saved (kept); the tweet part is gone.
+    (RV + "cr.smali", "    .line 975\n    iget-boolean v0, p0, Lcom/cyo/comicrack/viewer/cr;->f:Z", ".end method",
+     block("return-void") + "\n"),
+    # Settings: reset of the Twitter login (pref no longer exists in the settings screen).
+    (RV + "ip.smali", "    .line 344\n    sget-object v0, Lcom/cyo/comicrack/viewer/ComicRackApplication;->i:", "    .line 349\n", ""),
+    # The app's Twitter module (with the consumer keys that were embedded in n()).
+    (RV + "ComicRackApplication.smali", ".field private p:Lcom/cyo/common/b/a/f;\n\n", ".field", ""),
+    (RV + "ComicRackApplication.smali", ".method public final n()Lcom/cyo/common/b/a/f;", ".method public onCreate()V", ""),
+]
+
+# Banner manager common/view/a: the slots (a, b(I), constructor) are still used for layout
+# bookkeeping; everything that created, showed or released ad views does nothing now.
+STUBS = [
+    ad_method_stub(".method public final a()V"),
+    ad_method_stub(".method final a(Lcom/cyo/common/view/f;)V"),
+    ad_method_stub(".method public final b()V"),
+    ad_method_stub(".method final b(Lcom/cyo/common/view/f;)V"),
+    ad_method_stub(".method public final c()V"),
+]
+
+# Removed from the dex (paths under smali/). Nothing left may reference them.
+DELETE = [
+    "smali/com/a/a", "smali/twitter4j", "smali/com/cyo/common/b/a",
+    RV + "cs.smali", RV + "gv.smali", RV + "gw.smali", RV + "hb.smali", RV + "hc.smali",
+    "smali/com/cyo/common/view/e.smali", "smali/com/cyo/common/view/g.smali",
+]
+DELETED_TYPES = ("Lcom/a/a/", "Ltwitter4j/", "Lcom/cyo/common/b/a/",
+                 "Lcom/cyo/comicrack/viewer/cs;", "Lcom/cyo/comicrack/viewer/gv;",
+                 "Lcom/cyo/comicrack/viewer/gw;", "Lcom/cyo/comicrack/viewer/hb;",
+                 "Lcom/cyo/comicrack/viewer/hc;", "Lcom/cyo/common/view/e;",
+                 "Lcom/cyo/common/view/g;")
+
 NATURAL = [("invoke-virtual", "invoke-static"),
            ("Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I",
             "Lcra/fork/Natural;->compare(Ljava/lang/String;Ljava/lang/String;)I")]
@@ -248,6 +317,46 @@ def main() -> None:
                 raise SystemExit(f"{rel}: already defines onRequestPermissionsResult")
             write(path, content.rstrip("\n") + "\n" + text)
             print("appended to", rel)
+        for rel, start, end, repl in CUTS:
+            path = os.path.join(work, rel)
+            text = read(path)
+            hits = text.count(start)
+            if hits != 1:
+                raise SystemExit(f"{rel}: expected 1 occurrence, found {hits}: {start[:80]!r}")
+            a = text.index(start)
+            b = text.find(end, a + len(start))
+            if b < 0:
+                raise SystemExit(f"{rel}: end marker {end[:60]!r} not found after {start[:60]!r}")
+            write(path, text[:a] + repl + text[b:])
+            print("cut", rel, f"({b - a} chars)")
+        for rel, header in STUBS:
+            path = os.path.join(work, rel)
+            lines = read(path).split("\n")
+            heads = [n for n, line in enumerate(lines) if line == header]
+            if len(heads) != 1:
+                raise SystemExit(f"{rel}: method {header!r} found {len(heads)} times")
+            end = next(n for n in range(heads[0], len(lines)) if lines[n] == ".end method")
+            lines[heads[0]:end + 1] = [header, "    .locals 0", "", "    return-void", ".end method"]
+            write(path, "\n".join(lines))
+            print("stubbed", rel, header)
+        for rel in DELETE:
+            target = os.path.join(work, rel)
+            if os.path.isdir(target):
+                shutil.rmtree(target)
+            elif os.path.isfile(target):
+                os.remove(target)
+            else:
+                raise SystemExit(f"nothing to delete: {rel}")
+            print("deleted", rel)
+        dangling = []
+        for root, _dirs, files in os.walk(os.path.join(work, "smali")):
+            for name in files:
+                text = read(os.path.join(root, name))
+                for t in DELETED_TYPES:
+                    if t in text:
+                        dangling.append((os.path.relpath(os.path.join(root, name), work), t))
+        if dangling:
+            raise SystemExit("deleted classes still referenced: " + repr(dangling[:10]))
         for base in extra_dirs:
           for root, _dirs, files in os.walk(base):
             for name in files:

@@ -84,8 +84,19 @@ def main() -> None:
     names = {c.get_name() for c in dex.get_classes()}
     ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;"}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
-    checks.append(("classes: 1421 original + cra/fork (Natural, Updater, UpdatePrompt, Perms), no test class",
-                   len(names) == 1421 + len(ours) and ours <= names and not test_classes))
+    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms), no test class",
+                   len(names) == 1421 - 376 + len(ours) and ours <= names and not test_classes))
+    # Dead code (AdMob, twitter4j, the Twitter module) is gone and nothing names it any more:
+    # every class a declaration or instruction refers to has its descriptor in the string table.
+    dead = ("Lcom/a/a/", "Ltwitter4j/", "Lcom/cyo/common/b/a/",
+            "Lcom/cyo/comicrack/viewer/cs;", "Lcom/cyo/comicrack/viewer/gv;", "Lcom/cyo/comicrack/viewer/gw;",
+            "Lcom/cyo/comicrack/viewer/hb;", "Lcom/cyo/comicrack/viewer/hc;",
+            "Lcom/cyo/common/view/e;", "Lcom/cyo/common/view/g;")
+    checks.append(("no dead class (AdMob, twitter4j, Twitter module) in the dex, none referenced",
+                   not any(t.startswith(dead) for t in strings)))
+    checks.append(("no embedded Twitter / AdMob keys",
+                   not any(k in strings for k in ("lc7K38IqLGD9tlvj9DP42w", "ca-app-pub-4781274123938257/5497297649",
+                                                  "a14e6a2bbd7e129"))))
     lib = method_ins(dex, "Lcom/cyo/comicrack/viewer/LibraryActivity;", "a", "(Landroid/os/Bundle;)V") or []
     checks.append(("Update check started by LibraryActivity",
                    any("Lcra/fork/Updater;->start(" in o for _, o in lib)))
