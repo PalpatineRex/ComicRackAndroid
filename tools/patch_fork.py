@@ -35,6 +35,12 @@ CE = "https://github.com/maforget/ComicRackCE"
 # classes.dex produced by patch_lvl.py from the verified 1.80 base.
 DEX_PATCHES = [
     (0x0EAC30, bytes.fromhex("38050600"), bytes.fromhex("33550600")),  # EULA check
+    # End-of-book rating dialog (ComicRackApplication.a(Activity, h, Z, Runnable)),
+    # dead "Share on Twitter" checkbox:
+    #  - checkBox.setChecked(prefs "tweet_rating") -> setChecked(v5), v5 == 0 there
+    (0x0D1B14, bytes.fromhex("17"), bytes.fromhex("57")),
+    #  - "if (v6) skip setVisibility(GONE)" -> if-ne v6, v6 (never taken): always hidden
+    (0x0D1B16, bytes.fromhex("39060700"), bytes.fromhex("33660700")),
 ]
 
 # Lines of about.txt removed entirely (dead FAQ and forum of the old site).
@@ -63,7 +69,7 @@ FORK_CHANGES = {
         "Uses the full screen on tall phones (no more empty band at the bottom)",
         "Removed the Google Play license check (the store listing no longer exists)",
         "Removed the first-run license agreement dialog",
-        "Removed the dead Twitter and usage statistics options",
+        "Removed the dead Twitter and usage statistics options (Settings, rating dialog)",
         "Removed the dead FAQ and forum links",
         "Links to the old website now point to the fork (Settings, About, Help)",
     ],
