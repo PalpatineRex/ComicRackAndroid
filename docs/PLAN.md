@@ -54,7 +54,7 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 - Continuous reading mode (webtoon / vertical strip).
 - MetronInfo.xml / ComicBook.xml metadata, Translator field.
 
-### Written, assembles, not yet run on a device
+### Written, built and verified in CI (dry run), not yet run on a device
 - Update check (`tools/smali/cra/fork/Updater.smali`, `UpdatePrompt.smali`): at most once a day when
   the library opens, reads `releases/latest` of this repo; tag `2.9.187` / `v2.9.187.1` -> versionCode
   with the build formula; if newer, "Version X is available. Update now?" -> opens the release's `.apk`
@@ -62,6 +62,8 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   Release rules: tag = versionName, one `.apk` asset, same signing key every time.
 - Usage statistics removed: opt-in popup never shown, app and Google Analytics flags forced off,
   GA host replaced by `analytics.invalid`.
+- Storage permission asked on first start (`cra/fork/Perms.smali`), library restarts on grant.
+- Release workflow `.github/workflows/release.yml`: dry run on GitHub OK (2026-11-03, all checks).
 - On-device checks: `tools/device_test.ps1` (app_process tests + optional test build that sees a
   fake 2.9.999 release from `tests/fixtures/fake_release.json`).
 
@@ -69,7 +71,18 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 - Real signing key, created and kept by the maintainer (never in the repo or a chat).
 - CI release workflow (fetch base, build, verify, sign with secrets, publish) - maintainer's call.
 - Test Wi-Fi sync against ComicRack CE on a real PC.
-- Remove dead AdMob / twitter4j code.
+- Remove dead AdMob / twitter4j code (mapped 2026-11-03, to do with on-device tests):
+  - twitter4j (184 classes) is used only by the app's Twitter module `com/cyo/common/b/a` (17 classes).
+    Outside users of that module: `ComicRackApplication.n()` (creates it), `cr.onClick` (rating dialog OK:
+    also saves the rating, so only the tweet part can go), `gv.a(String)`, `ip.j()` (Twitter reset pref).
+  - AdMob `com/a/a` (168 classes) is used by `common/view/a.a()` (152 instructions, runs on every screen
+    via `ip.n`/`onConfigurationChanged`; 11 ad instructions), `common/view/a.b`, `common/view/g.a`,
+    `ReaderActivity.Q` / `ReaderActivity.a(ReaderActivity, Runnable)`, a `ReaderActivity` field, and 3
+    listener classes (`hb`, `hc`, `common/view/e`) implementing `com/a/a/d`.
+  - Rule: after removal, no instruction, field, superclass or interface may reference a removed class
+    (static check to add to verify_build), then test reader, rating dialog, settings on a device.
+  - Google Analytics (`com/a/b/a`) cannot be removed: `com/a/b/a/a/a/m` is a superclass of every activity.
+    It is neutralised instead (flags forced off, host `analytics.invalid`).
 
 ### Later / only if needed - Android 14+
 - Android 14 refuses targetSdk < 23 without `--bypass-low-target-sdk-block`; targetSdk is now 25,
