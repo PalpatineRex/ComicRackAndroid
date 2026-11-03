@@ -8,13 +8,21 @@
 2. About screen (res/raw/about.txt): links to the defunct comicrack.cyolito.com
    site are pointed to maintained pages. Only URLs are replaced; the text itself
    comes from the base APK at build time and is not stored in this repository.
+3. Settings > "Visit ComicRack" (res/xml/preferences_general.xml, binary XML):
+   intent URL -> this repository.
+   Still pointing to the old site: the About dialog's "Help" button (URL stored in
+   classes.dex; changing it needs a dex rebuild, see docs/PLAN.md).
 
 Writes an UNSIGNED apk. Usage: patch_fork.py IN.apk OUT_UNSIGNED.apk
 """
 import hashlib
+import os
 import sys
 import zlib
 import zipfile
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import axml  # noqa: E402
 
 REPO = "https://github.com/PalpatineRex/ComicRackAndroid"
 CE = "https://github.com/maforget/ComicRackCE"
@@ -77,6 +85,9 @@ def main() -> None:
             elif info.filename == "res/raw/about.txt":
                 data = patch_about(data)
                 print("about.txt: links replaced")
+            elif info.filename == "res/xml/preferences_general.xml":
+                data = axml.replace_strings(data, {"http://comicrack.cyolito.com": REPO})
+                print("preferences_general.xml: 'Visit ComicRack' -> repo")
             out = zipfile.ZipInfo(info.filename, date_time=info.date_time)
             out.compress_type = info.compress_type
             out.external_attr = info.external_attr

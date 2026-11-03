@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Change targetSdkVersion in the binary AndroidManifest.xml of an APK.
+"""Edit the binary AndroidManifest.xml of an APK: targetSdk and version.
 
-Same-size in-place edit of the attribute value (no structure change), standard
-library only. The output keeps every other entry and drops the old signature,
-so sign it afterwards (tools/sign_v1.py or tools/sign.sh).
+Standard library only (uses tools/axml.py). Drops the old signature; sign the
+output afterwards (tools/sign_v1.py or tools/sign.sh).
 
-Why 25 by default for ComicRack 1.80 (was 21):
+Why targetSdk 25 by default for ComicRack 1.80 (was 21):
   * >= 23 removes Android's "built for an older version of Android" warning
     (and the Android 14 install block).
   * >= 24 makes activities resizeable by default, which removes the 1.86 max
@@ -16,17 +15,22 @@ Why 25 by default for ComicRack 1.80 (was 21):
   install that already had it keeps it; a fresh install must grant it in
   Settings > Apps > ComicRack > Permissions until the app asks for it itself.
 
+Version: versionCode must grow with every release (Android refuses downgrades and
+the auto-updater compares it). The About screen shows "versionName.versionCode".
+
 Usage: patch_manifest.py IN.apk OUT_UNSIGNED.apk [--target-sdk N]
+                         [--version-name S] [--version-code N]
 """
-import struct
+import os
 import sys
 import zipfile
 
-TARGET_SDK_ATTR = 0x01010270  # android:targetSdkVersion
-TYPE_INT_DEC = 0x10
-TYPE_INT_HEX = 0x11
-RES_XML_RESOURCE_MAP_TYPE = 0x0180
-RES_XML_START_ELEMENT_TYPE = 0x0102
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import axml  # noqa: E402
+
+ATTR_TARGET_SDK = 0x01010270
+ATTR_VERSION_CODE = 0x0101021B
+BASE_VERSION_NAME = "1.80"
 
 
 def is_signature_entry(name: str) -> bool:
@@ -35,47 +39,20 @@ def is_signature_entry(name: str) -> bool:
     )
 
 
-def patch_axml(data: bytes, new_target: int) -> tuple[bytes, int]:
-    buf = bytearray(data)
-    xml_type, header_size, _total = struct.unpack_from("<HHI", buf, 0)
-    if xml_type != 0x0003:
-        raise SystemExit("not a binary XML file")
-    pos = header_size
-    res_ids: list[int] = []
-    hits = []
-    while pos < len(buf):
-        ctype, chsize, csize = struct.unpack_from("<HHI", buf, pos)
-        if csize == 0:
-            break
-        if ctype == RES_XML_RESOURCE_MAP_TYPE:
-            n = (csize - chsize) // 4
-            res_ids = list(struct.unpack_from(f"<{n}I", buf, pos + chsize))
-        elif ctype == RES_XML_START_ELEMENT_TYPE:
-            ext = pos + chsize  # ResXMLTree_attrExt
-            attr_start, attr_size, attr_count = struct.unpack_from("<HHH", buf, ext + 8)
-            for i in range(attr_count):
-                a = ext + attr_start + i * attr_size
-                name_idx = struct.unpack_from("<I", buf, a + 4)[0]
-                if name_idx < len(res_ids) and res_ids[name_idx] == TARGET_SDK_ATTR:
-                    data_type = buf[a + 15]
-                    if data_type not in (TYPE_INT_DEC, TYPE_INT_HEX):
-                        raise SystemExit(f"targetSdkVersion has unexpected type 0x{data_type:x}")
-                    hits.append(a + 16)
-        pos += csize
-    if len(hits) != 1:
-        raise SystemExit(f"expected exactly one targetSdkVersion attribute, found {len(hits)}")
-    old = struct.unpack_from("<I", buf, hits[0])[0]
-    struct.pack_into("<I", buf, hits[0], new_target)
-    return bytes(buf), old
+def take(args: list[str], flag: str, default):
+    if flag in args:
+        i = args.index(flag)
+        value = args[i + 1]
+        del args[i:i + 2]
+        return type(default)(value) if default is not None else value
+    return default
 
 
 def main() -> None:
     args = sys.argv[1:]
-    target = 25
-    if "--target-sdk" in args:
-        i = args.index("--target-sdk")
-        target = int(args[i + 1])
-        del args[i:i + 2]
+    target = take(args, "--target-sdk", 25)
+    version_name = take(args, "--version-name", None)
+    version_code = take(args, "--version-code", 0)
     if len(args) != 2:
         raise SystemExit(__doc__)
     src, dst = args
@@ -85,8 +62,16 @@ def main() -> None:
                 continue
             data = zin.read(info.filename)
             if info.filename == "AndroidManifest.xml":
-                data, old = patch_axml(data, target)
+                data, old = axml.set_int_attr(data, ATTR_TARGET_SDK, target)
                 print(f"targetSdkVersion {old} -> {target}")
+                if version_code:
+                    data, old = axml.set_int_attr(data, ATTR_VERSION_CODE, version_code)
+                    if version_code <= old:
+                        raise SystemExit(f"versionCode must be > {old}")
+                    print(f"versionCode {old} -> {version_code}")
+                if version_name:
+                    data = axml.replace_strings(data, {BASE_VERSION_NAME: version_name})
+                    print(f"versionName {BASE_VERSION_NAME} -> {version_name}")
             out = zipfile.ZipInfo(info.filename, date_time=info.date_time)
             out.compress_type = info.compress_type
             out.external_attr = info.external_attr
