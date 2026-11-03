@@ -29,8 +29,8 @@ Both are published as assets of the release `1.0` of `maforget/ComicRackKeygen`.
 ## Original vs cracked (verified)
 
 Only **3 of 1421 classes differ**, all in the Google LVL: `com.a.b.b.a.i`, `.l`, `.t`.
-In `i.a(m)` a conditional branch (`if-eqz`) became `if-ne v0, v0` (always taken), i.e. a
-one-instruction patch of the license check. Classes `l` and `t` also differ; only `i` was read in detail.
+In `i.a(m)` a conditional branch (`if-eqz`) became `if-ne v0, v0` (never taken), so execution always falls through
+to the "license allowed" path: a one-instruction patch of the license check. Classes `l` and `t` also differ; only `i` was read in detail.
 Resources and manifest are identical apart from signing.
 
 At byte level the whole difference is **5 edits in `classes.dex`** (offsets 0x0C121A, 0x0C160C, 0x0C190C,
