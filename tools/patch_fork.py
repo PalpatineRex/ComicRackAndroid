@@ -56,6 +56,9 @@ FORK_CHANGES = {
     "2.9.186": [
         "Community fork, maintained at github.com/PalpatineRex/ComicRackAndroid",
         "Version numbers follow ComicRack Community Edition (2.9.186 = CE 0.9.186)",
+        "From CE: pages are sorted naturally (page 2 before page 10)",
+        'From CE: "__MACOSX" and "._" files inside archives are ignored',
+        "From CE: HEIF/HEIC pages (Android 9+) and AVIF pages (Android 12+)",
         'Targets Android 7.1: no more "built for an older version of Android" warning',
         "Uses the full screen on tall phones (no more empty band at the bottom)",
         "Removed the Google Play license check (the store listing no longer exists)",
