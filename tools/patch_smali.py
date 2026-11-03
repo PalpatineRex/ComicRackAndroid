@@ -23,6 +23,19 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = "https://github.com/PalpatineRex/ComicRackAndroid"
 J_SMALI = "smali/com/cyo/comicrack/a/b/j.smali"  # page-file filter (image extensions)
 CE_SMALI = "smali/com/cyo/comicrack/a/a/ce.smali"  # a page; compareTo orders pages
+BI_SMALI = "smali/com/cyo/common/bi.smali"  # string helpers used by the library sorts
+
+# Articles ignored when sorting series (bi.b strips them; bi.d = series compare;
+# also used by the fast-scroll index). Original: the/der/die/das. CE 0.9.180 added
+# French articles (Le, La, Les, L') to its default IgnoredArticles.
+SORT_ARTICLES = ["the ", "der ", "die ", "das ", "les ", "le ", "la ", "l'", "l\\u2019"]
+
+
+def articles_block() -> str:
+    lines = [f"const/16 v1, 0x{len(SORT_ARTICLES):x}", "new-array v0, v1, [Ljava/lang/String;"]
+    for n, a in enumerate(SORT_ARTICLES):
+        lines += [f"const/16 v1, 0x{n:x}", f'const-string v2, "{a}"', "aput-object v2, v0, v1"]
+    return block(*lines)
 
 
 def block(*lines: str) -> str:
@@ -97,16 +110,28 @@ EDITS = [
            'const-string v2, ".avif"',
            "invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z") +
      "\n\n    :cra_img_end\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;"),
+
+    # Sort articles: rebuild bi.h just before it is stored (v1/v2 are scratch there,
+    # both are overwritten before their next read in bi.<clinit>).
+    (BI_SMALI,
+     "    sput-object v0, Lcom/cyo/common/bi;->h:[Ljava/lang/String;",
+     articles_block() + "\n\n    sput-object v0, Lcom/cyo/common/bi;->h:[Ljava/lang/String;"),
 ]
 
-# (smali file, substring identifying exactly one line, [(old, new), ...] applied to that line)
+NATURAL = [("invoke-virtual", "invoke-static"),
+           ("Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I",
+            "Lcra/fork/Natural;->compare(Ljava/lang/String;Ljava/lang/String;)I")]
+
+# (smali file, method header or None, substring identifying exactly one line in that
+#  scope, [(old, new), ...] applied to that line)
 LINE_EDITS = [
     # CE 0.9.180: "Updated default sort to be natural sorting (numeric)".
     # Pages were ordered by String.compareToIgnoreCase (page 10 before page 2).
-    (CE_SMALI, "Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I",
-     [("invoke-virtual", "invoke-static"),
-      ("Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I",
-       "Lcra/fork/Natural;->compare(Ljava/lang/String;Ljava/lang/String;)I")]),
+    (CE_SMALI, None, "Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I", NATURAL),
+    # Library sorts (title, file, series via bi.d...) all end in bi.c, a null-safe
+    # compareToIgnoreCase. Natural order there; 0 still means equalsIgnoreCase.
+    (BI_SMALI, ".method public static c(Ljava/lang/String;Ljava/lang/String;)I",
+     "Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I", NATURAL),
 ]
 
 EXTRA_SMALI_DIR = os.path.join(HERE, "smali")  # our own classes, copied as is
@@ -158,10 +183,17 @@ def main() -> None:
                 raise SystemExit(f"{rel}: expected 1 occurrence, found {hits}: {old[:80]!r}")
             write(path, text.replace(old, new))
             print("edited", rel)
-        for rel, marker, repl in LINE_EDITS:
+        for rel, method, marker, repl in LINE_EDITS:
             path = os.path.join(work, rel)
             lines = read(path).split("\n")
-            idx = [n for n, line in enumerate(lines) if marker in line]
+            lo, hi = 0, len(lines)
+            if method:
+                heads = [n for n, line in enumerate(lines) if line == method]
+                if len(heads) != 1:
+                    raise SystemExit(f"{rel}: method {method!r} found {len(heads)} times")
+                lo = heads[0]
+                hi = next(n for n in range(lo, len(lines)) if lines[n] == ".end method")
+            idx = [n for n in range(lo, hi) if marker in lines[n]]
             if len(idx) != 1:
                 raise SystemExit(f"{rel}: expected 1 line with {marker!r}, found {len(idx)}")
             for old, new in repl:

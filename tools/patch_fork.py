@@ -62,7 +62,8 @@ FORK_CHANGES = {
     "2.9.186": [
         "Community fork, maintained at github.com/PalpatineRex/ComicRackAndroid",
         "Version numbers follow ComicRack Community Edition (2.9.186 = CE 0.9.186)",
-        "From CE: pages are sorted naturally (page 2 before page 10)",
+        "From CE: pages and library lists are sorted naturally (2 before 10)",
+        "From CE: French articles (Le, La, Les, L') are ignored when sorting series",
         'From CE: "__MACOSX" and "._" files inside archives are ignored',
         "From CE: HEIF/HEIC pages (Android 9+) and AVIF pages (Android 12+)",
         'Targets Android 7.1: no more "built for an older version of Android" warning',

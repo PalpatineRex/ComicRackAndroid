@@ -91,6 +91,14 @@ def main() -> None:
     checks.append(("CE: HEIF/AVIF pages accepted (.heic .heif .avif)",
                    {".heic", ".heif", ".avif"} <= filter_strings))
     cmp_ = method_ins(dex, "Lcom/cyo/comicrack/a/a/ce;", "compareTo") or []
+    bic = method_ins(dex, "Lcom/cyo/common/bi;", "c", "(Ljava/lang/String; Ljava/lang/String;)I") or []
+    checks.append(("CE: natural library sort (bi.c -> Natural.compare)",
+                   any("Lcra/fork/Natural;->compare(" in o for _, o in bic)
+                   and not any("compareToIgnoreCase" in o for _, o in bic)))
+    clinit = method_ins(dex, "Lcom/cyo/common/bi;", "<clinit>") or []
+    arts = {o.split(", ", 1)[-1].strip('"') for n, o in clinit if n.startswith("const-string")}
+    checks.append(("CE: French articles ignored when sorting (le, la, les, l')",
+                   {"the ", "le ", "la ", "les ", "l'"} <= arts))
     checks.append(("CE: natural page order (ce.compareTo -> Natural.compare)",
                    any("Lcra/fork/Natural;->compare(" in o for _, o in cmp_)
                    and not any("compareToIgnoreCase" in o for _, o in cmp_)))
