@@ -53,6 +53,10 @@ def main() -> None:
                    "http://comicrack.cyolito.com/documentation/comicrack-for-android" not in strings))
     about = z.read("res/raw/about.txt").decode("utf-8")
     checks.append(("About links: no cyolito.com", "cyolito.com" not in about))
+    checks.append(("About: FAQ and forum links removed", ">FAQ<" not in about and "Forum<" not in about))
+    ver = method_ins(dex, "Lcom/cyo/comicrack/viewer/a;", "a", "Landroid/app/Activity; I")
+    checks.append(("About shows versionName only (no versionCode)",
+                   ver is not None and not any("Lcom/cyo/common/ag;->e(" in o for _, o in ver)))
     prefs = AXMLPrinter(z.read("res/xml/preferences_general.xml")).get_xml().decode()
     checks.append(("Settings 'Visit ComicRack' -> repo", f'android:data="{REPO}"' in prefs))
     checks.append(("Settings: Twitter and usage statistics removed",

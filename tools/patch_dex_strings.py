@@ -20,12 +20,29 @@ import zipfile
 
 REPO = "https://github.com/PalpatineRex/ComicRackAndroid"
 
-# (smali file, exact old line, new line). Each old line must occur exactly once.
+def block(*lines: str) -> str:
+    """Smali as written by apktool: 4-space indent, a blank line between instructions."""
+    return "\n\n".join("    " + line for line in lines)
+
+
+# (smali file, exact old text, new text). Each old text must occur exactly once.
 EDITS = [
     # About dialog "Help" button (ComicRackApplication.c, read by viewer.b.onClick)
     ("smali/com/cyo/comicrack/viewer/ComicRackApplication.smali",
      'const-string v0, "http://comicrack.cyolito.com/documentation/comicrack-for-android"',
      f'const-string v0, "{REPO}#readme"'),
+    # About dialog "<version>": the original shows versionName + "." + versionCode
+    # (1.80.103). The fork's versionName already carries the full version (2.9.186),
+    # so drop the "." + versionCode part.
+    ("smali/com/cyo/comicrack/viewer/a.smali",
+     block('const-string v5, "."',
+           "invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;",
+           "move-result-object v4",
+           "invoke-static {v2}, Lcom/cyo/common/ag;->e(Landroid/content/Context;)I",
+           "move-result v5",
+           "invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;",
+           "move-result-object v4") + "\n\n",
+     ""),
 ]
 
 
@@ -60,10 +77,10 @@ def main() -> None:
         for rel, old, new in EDITS:
             path = os.path.join(work, rel)
             with open(path, encoding="utf-8") as f:
-                text = f.read()
+                text = f.read().replace("\r\n", "\n")
             hits = text.count(old)
             if hits != 1:
-                raise SystemExit(f"{rel}: expected 1 occurrence, found {hits}: {old}")
+                raise SystemExit(f"{rel}: expected 1 occurrence, found {hits}: {old[:80]!r}")
             with open(path, "w", encoding="utf-8", newline="\n") as f:
                 f.write(text.replace(old, new))
             print("edited", rel)

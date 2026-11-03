@@ -37,11 +37,14 @@ DEX_PATCHES = [
     (0x0EAC30, bytes.fromhex("38050600"), bytes.fromhex("33550600")),  # EULA check
 ]
 
+# Lines of about.txt removed entirely (dead FAQ and forum of the old site).
+ABOUT_REMOVED_LINKS = [
+    "http://comicrack.cyolito.com/faqs/comicrack-android",
+    "http://comicrack.cyolito.com/forum",
+]
 # Longest first: the bare site URL is a prefix of the others.
 ABOUT_LINKS = [
     ("http://comicrack.cyolito.com/documentation/comicrack-for-android", REPO + "#readme"),
-    ("http://comicrack.cyolito.com/faqs/comicrack-android", REPO + "/issues"),
-    ("http://comicrack.cyolito.com/forum", REPO + "/issues"),
     ('href="http://comicrack.cyolito.com"', 'href="' + CE + '"'),  # "ComicRack for Windows"
 ]
 
@@ -50,13 +53,15 @@ REMOVED_PREFERENCES = ["preference_category_general_social", "tracking_enabled"]
 
 # Fork release notes, newest first. Same layout as the original changes.txt.
 FORK_CHANGES = {
-    "1.81": [
+    "2.9.186": [
         "Community fork, maintained at github.com/PalpatineRex/ComicRackAndroid",
+        "Version numbers follow ComicRack Community Edition (2.9.186 = CE 0.9.186)",
         'Targets Android 7.1: no more "built for an older version of Android" warning',
         "Uses the full screen on tall phones (no more empty band at the bottom)",
         "Removed the Google Play license check (the store listing no longer exists)",
         "Removed the first-run license agreement dialog",
         "Removed the dead Twitter and usage statistics options",
+        "Removed the dead FAQ and forum links",
         "Links to the old website now point to the fork (Settings, About, Help)",
     ],
 }
@@ -91,6 +96,13 @@ def patch_dex(dex: bytes) -> bytes:
 
 def patch_about(raw: bytes) -> bytes:
     text = raw.decode("utf-8")
+    lines = text.split("\n")
+    for url in ABOUT_REMOVED_LINKS:
+        hits = [i for i, line in enumerate(lines) if url in line]
+        if len(hits) != 1:
+            raise SystemExit(f"about.txt: expected one line with {url}, found {len(hits)}")
+        del lines[hits[0]]
+    text = "\n".join(lines)
     for old, new in ABOUT_LINKS:
         if old not in text:
             raise SystemExit(f"about.txt: expected link not found: {old}")

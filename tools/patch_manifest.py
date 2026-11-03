@@ -15,11 +15,14 @@ Why targetSdk 25 by default for ComicRack 1.80 (was 21):
   install that already had it keeps it; a fresh install must grant it in
   Settings > Apps > ComicRack > Permissions until the app asks for it itself.
 
-Version: versionCode must grow with every release (Android refuses downgrades and
-the auto-updater compares it). The About screen shows "versionName.versionCode".
+Version: the fork follows ComicRack Community Edition. CE "0.9.186" gives
+versionName "2.9.186" (2 = successor of the 1.x Android app) and versionCode
+918600 = major*10^7 + minor*10^5 + build*100 + rev. --rev N (1-99) is for an
+Android-only fix between two CE builds: "2.9.186.N", code 9186NN.
+versionCode must grow with every release (Android refuses downgrades and the
+auto-updater compares it).
 
-Usage: patch_manifest.py IN.apk OUT_UNSIGNED.apk [--target-sdk N]
-                         [--version-name S] [--version-code N]
+Usage: patch_manifest.py IN.apk OUT_UNSIGNED.apk --ce-version X.Y.Z [--rev N] [--target-sdk N]
 """
 import os
 import sys
@@ -48,13 +51,27 @@ def take(args: list[str], flag: str, default):
     return default
 
 
+def fork_version(ce_version: str, rev: int = 0) -> tuple[str, int]:
+    """CE 'major.minor.build' -> (versionName, versionCode) of the Android fork."""
+    parts = ce_version.lstrip("v").split(".")
+    if len(parts) != 3 or not all(p.isdigit() for p in parts):
+        raise SystemExit(f"CE version must look like 0.9.186, got {ce_version!r}")
+    major, minor, build = map(int, parts)
+    if minor > 99 or build > 999 or not 0 <= rev <= 99:
+        raise SystemExit("version part out of range")
+    name = f"{major + 2}.{minor}.{build}" + (f".{rev}" if rev else "")
+    code = major * 10_000_000 + minor * 100_000 + build * 100 + rev
+    return name, code
+
+
 def main() -> None:
     args = sys.argv[1:]
     target = take(args, "--target-sdk", 25)
-    version_name = take(args, "--version-name", None)
-    version_code = take(args, "--version-code", 0)
-    if len(args) != 2:
+    ce_version = take(args, "--ce-version", None)
+    rev = take(args, "--rev", 0)
+    if len(args) != 2 or not ce_version:
         raise SystemExit(__doc__)
+    version_name, version_code = fork_version(ce_version, rev)
     src, dst = args
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
         for info in zin.infolist():
