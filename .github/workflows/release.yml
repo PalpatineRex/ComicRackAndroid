@@ -22,6 +22,10 @@ on:
         description: "Version to build in dry-run mode (never published)"
         type: string
         default: "2.9.186"
+      real_key:
+        description: "Sign with the real key secrets (checks them; still nothing published)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -71,13 +75,29 @@ jobs:
           CERT: ${{ secrets.SIGNING_CERT_PEM }}
         run: |
           mkdir -p "$RUNNER_TEMP/key"
-          if [ "${{ steps.v.outputs.mode }}" = "release" ]; then
+          if [ "${{ steps.v.outputs.mode }}" = "release" ] || [ "${{ inputs.real_key }}" = "true" ]; then
             [ -n "$KEY" ] && [ -n "$CERT" ] || { echo "SIGNING_KEY_PEM / SIGNING_CERT_PEM secrets missing"; exit 1; }
             printf '%s\n' "$KEY" > "$RUNNER_TEMP/key/key.pem"
             printf '%s\n' "$CERT" > "$RUNNER_TEMP/key/cert.pem"
+            echo "using the real signing key"
           else
             python tools/sign_v1.py gen-test-key "$RUNNER_TEMP/key/key.pem" "$RUNNER_TEMP/key/cert.pem"
+            echo "using a throwaway test key"
           fi
+          # Key and certificate must belong together; print only public facts.
+          python - "$RUNNER_TEMP/key/key.pem" "$RUNNER_TEMP/key/cert.pem" <<'EOF'
+          import sys
+          from cryptography import x509
+          from cryptography.hazmat.primitives import hashes, serialization
+          key = serialization.load_pem_private_key(open(sys.argv[1], "rb").read(), password=None)
+          cert = x509.load_pem_x509_certificate(open(sys.argv[2], "rb").read())
+          pub = lambda k: k.public_bytes(serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)
+          if pub(key.public_key()) != pub(cert.public_key()):
+              raise SystemExit("SIGNING_KEY_PEM does not match SIGNING_CERT_PEM")
+          print("key matches certificate:", cert.subject.rfc4514_string(),
+                "| valid until", cert.not_valid_after_utc.date(),
+                "| SHA-256", cert.fingerprint(hashes.SHA256()).hex())
+          EOF
 
       - name: Build (patch, verify, sign)
         run: |
