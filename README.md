@@ -28,7 +28,9 @@ Details and progress: [docs/PLAN.md](docs/PLAN.md).
    signature). Your comic files are not touched; the app's own library database is rebuilt.
 
 Updates: when the app tells you a new version is available, tap *Update*: the browser downloads the
-APK and Android installs it over the current one. Every release is signed with the same key.
+APK and Android installs it over the current one. Every release is signed with the same key;
+its certificate SHA-256 fingerprint is
+`fd4fd4789eaba18d9dbc2770f656a839d14a4ddc573f5b2918128519ac655f67` (CN=ComicRackAndroid).
 
 ## With ComicRack Community Edition
 
