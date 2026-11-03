@@ -22,6 +22,17 @@ will poll for updates. Others can use this fork as a base.
 - Not yet tested on a device. Note: the license-check bypass only neutralises the check; the
   `CHECK_LICENSE` permission is still declared.
 
+### Build chain (current, run on the maintainer's PC; CI to come)
+1. `patch_lvl.py base.apk s1.apk` (license check; verified identical to the circulating crack)
+2. `patch_fork.py s1.apk s2.apk` (EULA skipped, About and Settings links)
+3. `patch_manifest.py s2.apk s3.apk --version-name X --version-code N` (targetSdk 25)
+4. `patch_dex_strings.py s3.apk s4.apk --apktool apktool_2.9.3.jar` (Help button URL; needs Java)
+5. `verify_build.py s4.apk --version-name X --version-code N` (all checks must pass)
+6. `sign_v1.py sign s4.apk out.apk key.pem cert.pem`
+
+Version 1.81 / versionCode 104 = first fork build. Tested on a Doogee V30 Pro (Android 13):
+starts, library loads, no letterbox, no old-Android warning.
+
 ### M2 - Auto-update
 - App checks the GitHub Releases API of this repo, compares versionCode, downloads the APK and hands it
   to the system installer (needs `REQUEST_INSTALL_PACKAGES`).
