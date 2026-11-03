@@ -1,0 +1,112 @@
+# Builds the fork APK from the original ComicRack 1.80 APK and, for a version tag,
+# publishes it as a GitHub Release (what the in-app update check reads).
+#
+# - Push a tag "2.9.187" (or "2.9.187.1" for an Android-only fix): CE version 0.9.187
+#   (rev 1) is derived from it, the APK is built, every check of verify_build.py must
+#   pass, it is signed with the repository secrets SIGNING_KEY_PEM / SIGNING_CERT_PEM
+#   and published as release "2.9.187" with one .apk asset.
+# - Run manually (workflow_dispatch): dry run. Builds and verifies with a throwaway
+#   key; nothing is uploaded or published.
+# The base APK is downloaded from its public release and checked by SHA-256
+# (tools/patch_lvl.py); it is never stored in this repository.
+name: Build and release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build in dry-run mode (never published)"
+        type: string
+        default: "2.9.186"
+
+permissions:
+  contents: write
+
+env:
+  BASE_APK_URL: https://github.com/maforget/ComicRackKeygen/releases/download/1.0/ComicRack.1.80.apk
+  APKTOOL_URL: https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar
+  APKTOOL_SHA256: 7956eb04194300ce0d0a84ad18771eebc94b89fb8d1ddcce8ea4c056818646f4
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tools
+        run: |
+          pip install cryptography androguard loguru
+          curl -fsSL -o apktool.jar "$APKTOOL_URL"
+          echo "$APKTOOL_SHA256  apktool.jar" | sha256sum -c -
+          curl -fsSL -o base.apk "$BASE_APK_URL"
+
+      - name: Version
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then V="${GITHUB_REF_NAME}"; MODE=release; else V="${{ inputs.version }}"; MODE=dry; fi
+          IFS=. read -r X Y Z R <<< "$V"
+          [ -n "$Z" ] && [ "$X" -ge 2 ] || { echo "bad version $V"; exit 1; }
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "ce=$((X-2)).$Y.$Z" >> "$GITHUB_OUTPUT"
+          echo "rev=${R:-0}" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "Building $V (CE $((X-2)).$Y.$Z, rev ${R:-0}) mode=$MODE"
+
+      - name: Signing key
+        env:
+          KEY: ${{ secrets.SIGNING_KEY_PEM }}
+          CERT: ${{ secrets.SIGNING_CERT_PEM }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/key"
+          if [ "${{ steps.v.outputs.mode }}" = "release" ]; then
+            [ -n "$KEY" ] && [ -n "$CERT" ] || { echo "SIGNING_KEY_PEM / SIGNING_CERT_PEM secrets missing"; exit 1; }
+            printf '%s\n' "$KEY" > "$RUNNER_TEMP/key/key.pem"
+            printf '%s\n' "$CERT" > "$RUNNER_TEMP/key/cert.pem"
+          else
+            python tools/sign_v1.py gen-test-key "$RUNNER_TEMP/key/key.pem" "$RUNNER_TEMP/key/cert.pem"
+          fi
+
+      - name: Build (patch, verify, sign)
+        run: |
+          python tools/build.py --base base.apk --ce-version "${{ steps.v.outputs.ce }}" \
+            --rev "${{ steps.v.outputs.rev }}" --apktool apktool.jar \
+            --key "$RUNNER_TEMP/key/key.pem" --cert "$RUNNER_TEMP/key/cert.pem" \
+            --out "ComicRackAndroid-${{ steps.v.outputs.version }}.apk"
+          rm -rf "$RUNNER_TEMP/key"
+          sha256sum "ComicRackAndroid-${{ steps.v.outputs.version }}.apk"
+
+      - name: Release notes
+        if: steps.v.outputs.mode == 'release'
+        run: |
+          python - "${{ steps.v.outputs.version }}" > notes.md <<'EOF'
+          import sys
+          sys.path.insert(0, "tools")
+          from patch_fork import FORK_CHANGES
+          v = sys.argv[1]
+          items = FORK_CHANGES.get(v) or ["See the History tab in the app."]
+          print("\n".join("- " + i for i in items))
+          print("\nInstall: download the .apk below. Requires storage access on first start.")
+          EOF
+          cat notes.md
+
+      - name: Publish release
+        if: steps.v.outputs.mode == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.v.outputs.version }}" \
+            "ComicRackAndroid-${{ steps.v.outputs.version }}.apk" \
+            --title "ComicRackAndroid ${{ steps.v.outputs.version }}" --notes-file notes.md

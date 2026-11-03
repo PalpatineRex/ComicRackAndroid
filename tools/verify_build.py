@@ -82,12 +82,18 @@ def main() -> None:
     if want_code:
         checks.append((f"versionCode {want_code}", apk.get_androidversion_code() == str(want_code)))
     names = {c.get_name() for c in dex.get_classes()}
-    ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;"}
-    checks.append(("classes: 1421 original + cra/fork (Natural, Updater, UpdatePrompt)",
-                   len(names) == 1421 + len(ours) and ours <= names))
+    ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;"}
+    test_classes = {n for n in names if n.startswith("Lcra/test/")}
+    checks.append(("classes: 1421 original + cra/fork (Natural, Updater, UpdatePrompt, Perms), no test class",
+                   len(names) == 1421 + len(ours) and ours <= names and not test_classes))
     lib = method_ins(dex, "Lcom/cyo/comicrack/viewer/LibraryActivity;", "a", "(Landroid/os/Bundle;)V") or []
     checks.append(("Update check started by LibraryActivity",
                    any("Lcra/fork/Updater;->start(" in o for _, o in lib)))
+    checks.append(("Storage permission asked by LibraryActivity",
+                   any("Lcra/fork/Perms;->ensure(" in o for _, o in lib)))
+    res = method_ins(dex, "Lcom/cyo/comicrack/viewer/LibraryActivity;", "onRequestPermissionsResult") or []
+    checks.append(("Permission answer handled (restart on grant)",
+                   any("Lcra/fork/Perms;->onResult(" in o for _, o in res)))
     checks.append(("Update check reads this repo's releases",
                    "https://api.github.com/repos/PalpatineRex/ComicRackAndroid/releases/latest" in strings))
 

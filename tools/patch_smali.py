@@ -24,6 +24,7 @@ REPO = "https://github.com/PalpatineRex/ComicRackAndroid"
 J_SMALI = "smali/com/cyo/comicrack/a/b/j.smali"  # page-file filter (image extensions)
 CE_SMALI = "smali/com/cyo/comicrack/a/a/ce.smali"  # a page; compareTo orders pages
 BI_SMALI = "smali/com/cyo/common/bi.smali"  # string helpers used by the library sorts
+LIB_SMALI = "smali/com/cyo/comicrack/viewer/LibraryActivity.smali"
 
 # Articles ignored when sorting series (bi.b strips them; bi.d = series compare;
 # also used by the fast-scroll index). Original: the/der/die/das. CE 0.9.180 added
@@ -138,13 +139,28 @@ LINE_EDITS = [
     # compareToIgnoreCase. Natural order there; 0 still means equalsIgnoreCase.
     (BI_SMALI, ".method public static c(Ljava/lang/String;Ljava/lang/String;)I",
      "Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I", NATURAL),
-    # Update check (cra.fork.Updater, at most once a day) when the library starts,
-    # right after LibraryActivity.a(Bundle) calls its base class.
-    ("smali/com/cyo/comicrack/viewer/LibraryActivity.smali", None,
+    # When the library starts, right after LibraryActivity.a(Bundle) calls its base
+    # class: ask for storage access if missing (cra.fork.Perms), then the update
+    # check (cra.fork.Updater, at most once a day).
+    (LIB_SMALI, None,
      "Lcom/cyo/comicrack/viewer/ep;->a(Landroid/os/Bundle;)V",
      [("Lcom/cyo/comicrack/viewer/ep;->a(Landroid/os/Bundle;)V",
        "Lcom/cyo/comicrack/viewer/ep;->a(Landroid/os/Bundle;)V\n\n"
+       "    invoke-static {p0}, Lcra/fork/Perms;->ensure(Landroid/app/Activity;)V\n\n"
        "    invoke-static {p0}, Lcra/fork/Updater;->start(Landroid/app/Activity;)V")]),
+]
+
+# (smali file, text appended at the end) - new methods for existing classes.
+APPENDS = [
+    # Storage permission answer -> cra.fork.Perms.onResult (restarts on grant).
+    # The original app (2014) never overrides this; Activity's version is a no-op.
+    (LIB_SMALI,
+     "\n.method public onRequestPermissionsResult(I[Ljava/lang/String;[I)V\n"
+     "    .locals 0\n\n"
+     "    invoke-super {p0, p1, p2, p3}, Lcom/cyo/comicrack/viewer/ep;->onRequestPermissionsResult(I[Ljava/lang/String;[I)V\n\n"
+     "    invoke-static {p0, p1, p3}, Lcra/fork/Perms;->onResult(Landroid/app/Activity;I[I)V\n\n"
+     "    return-void\n"
+     ".end method\n"),
 ]
 
 EXTRA_SMALI_DIR = os.path.join(HERE, "smali")  # our own classes, copied as is
@@ -225,6 +241,13 @@ def main() -> None:
                 lines[idx[0]] = lines[idx[0]].replace(old, new)
             write(path, "\n".join(lines))
             print("edited", rel, "(line)")
+        for rel, text in APPENDS:
+            path = os.path.join(work, rel)
+            content = read(path)
+            if "onRequestPermissionsResult" in content:
+                raise SystemExit(f"{rel}: already defines onRequestPermissionsResult")
+            write(path, content.rstrip("\n") + "\n" + text)
+            print("appended to", rel)
         for base in extra_dirs:
           for root, _dirs, files in os.walk(base):
             for name in files:
