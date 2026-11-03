@@ -71,18 +71,16 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 - Real signing key, created and kept by the maintainer (never in the repo or a chat).
 - CI release workflow (fetch base, build, verify, sign with secrets, publish) - maintainer's call.
 - Test Wi-Fi sync against ComicRack CE on a real PC.
-- Remove dead AdMob / twitter4j code (mapped 2026-11-03, to do with on-device tests):
-  - twitter4j (184 classes) is used only by the app's Twitter module `com/cyo/common/b/a` (17 classes).
-    Outside users of that module: `ComicRackApplication.n()` (creates it), `cr.onClick` (rating dialog OK:
-    also saves the rating, so only the tweet part can go), `gv.a(String)`, `ip.j()` (Twitter reset pref).
-  - AdMob `com/a/a` (168 classes) is used by `common/view/a.a()` (152 instructions, runs on every screen
-    via `ip.n`/`onConfigurationChanged`; 11 ad instructions), `common/view/a.b`, `common/view/g.a`,
-    `ReaderActivity.Q` / `ReaderActivity.a(ReaderActivity, Runnable)`, a `ReaderActivity` field, and 3
-    listener classes (`hb`, `hc`, `common/view/e`) implementing `com/a/a/d`.
-  - Rule: after removal, no instruction, field, superclass or interface may reference a removed class
-    (static check to add to verify_build), then test reader, rating dialog, settings on a device.
+- Dead code removed (2026-11-04, 376 classes: AdMob `com/a/a`, twitter4j, the app's Twitter module
+  `com/cyo/common/b/a/*`, 5 listener / dialog classes). Done in `tools/patch_smali.py` (`CUTS`, `STUBS`,
+  `DELETE`); the build stops if any remaining code still names a deleted class, and `verify_build.py`
+  re-checks it on the final APK. What changed for the user: the reader's Snapshot menu is
+  Save / Share (no Tweet), the rating dialog only saves the rating, no ad / Twitter code or keys are left.
+  Checked on a Doogee V30 Pro (Android 13): library, reader and page turns, Snapshot menu (Share), rating
+  dialog (saved and reverted), settings, no crash in logcat.
   - Google Analytics (`com/a/b/a`) cannot be removed: `com/a/b/a/a/a/m` is a superclass of every activity.
     It is neutralised instead (flags forced off, host `analytics.invalid`).
+  - Not done: the unused layout / string resources of the removed features (they live in binary XML).
 
 ### Later / only if needed - Android 14+
 - Android 14 refuses targetSdk < 23 without `--bypass-low-target-sdk-block`; targetSdk is now 25,

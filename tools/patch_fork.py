@@ -81,6 +81,7 @@ FORK_CHANGES = {
         "Removed the Google Play license check (the store listing no longer exists)",
         "Removed the first-run license agreement dialog",
         "Removed the dead Twitter and usage statistics options (Settings, rating dialog)",
+        "Removed the unused ad (AdMob) and Twitter code: smaller app, Snapshot menu is Save / Share",
         "Usage statistics removed: no more opt-in popup, Google Analytics never sends anything",
         "Update check: tells you when a newer version is published on GitHub (once a day)",
         "Removed the dead FAQ and forum links",
