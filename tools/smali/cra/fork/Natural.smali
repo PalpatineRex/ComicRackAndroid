@@ -2,8 +2,9 @@
 .super Ljava/lang/Object;
 .source "Natural.smali"
 
-# Natural ("numeric") string order, case-insensitive, as in ComicRack CE 0.9.180+
-# ("Updated default sort to be natural sorting"): "page 2" < "page 10".
+# Natural ("numeric") string order, case- and accent-insensitive, as in ComicRack
+# CE 0.9.180+ ("Updated default sort to be natural sorting"): "page 2" < "page 10",
+# "Série" sorts with "Serie" (before "Zèbre").
 # Digit runs compare by value (leading zeros ignored), other characters by
 # Character.toLowerCase. Ties fall back to String.compareToIgnoreCase.
 #
@@ -29,7 +30,36 @@
 #   return r != 0 ? r : a.compareToIgnoreCase(b);
 
 .method public static compare(Ljava/lang/String;Ljava/lang/String;)I
-    .locals 12
+    .locals 14
+
+    # Accents are ignored (CE sorts with the culture's rules): compare accent-free
+    # copies, a = Normalizer.normalize(a, NFD).replaceAll("\\p{M}+", ""); keep the
+    # originals (v12, v13) for the final tie-break.
+    move-object v12, p0
+
+    move-object v13, p1
+
+    sget-object v0, Ljava/text/Normalizer$Form;->NFD:Ljava/text/Normalizer$Form;
+
+    invoke-static {p0, v0}, Ljava/text/Normalizer;->normalize(Ljava/lang/CharSequence;Ljava/text/Normalizer$Form;)Ljava/lang/String;
+
+    move-result-object p0
+
+    invoke-static {p1, v0}, Ljava/text/Normalizer;->normalize(Ljava/lang/CharSequence;Ljava/text/Normalizer$Form;)Ljava/lang/String;
+
+    move-result-object p1
+
+    const-string v0, "\\p{M}+"
+
+    const-string v1, ""
+
+    invoke-virtual {p0, v0, v1}, Ljava/lang/String;->replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    invoke-virtual {p1, v0, v1}, Ljava/lang/String;->replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p1
 
     # v0=i v1=j v2=na v3=nb v4=ca v5=cb v6..v11 temps
     const/4 v0, 0x0
@@ -221,7 +251,7 @@
 
     if-nez v6, :result
 
-    invoke-virtual {p0, p1}, Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I
+    invoke-virtual {v12, v13}, Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I
 
     move-result v6
 
