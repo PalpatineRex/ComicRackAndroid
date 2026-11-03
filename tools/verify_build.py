@@ -97,6 +97,12 @@ def main() -> None:
     checks.append(("no embedded Twitter / AdMob keys",
                    not any(k in strings for k in ("lc7K38IqLGD9tlvj9DP42w", "ca-app-pub-4781274123938257/5497297649",
                                                   "a14e6a2bbd7e129"))))
+    pruned = ("tweet", "close_advertisment", "general_allow_tracking_title", "general_twitter_reset_title")
+    arsc_text = z.read("resources.arsc")
+    checks.append(("unused resources pruned (Twitter / tracking / ad strings, old drawables)",
+                   not any(n.encode("utf-16-le") in arsc_text or n.encode() in arsc_text for n in pruned)
+                   and not any(n.startswith(("res/layout/ok_cancel_strip", "res/drawable-hdpi-v4/btn_expand"))
+                               for n in z.namelist())))
     lib = method_ins(dex, "Lcom/cyo/comicrack/viewer/LibraryActivity;", "a", "(Landroid/os/Bundle;)V") or []
     checks.append(("Update check started by LibraryActivity",
                    any("Lcra/fork/Updater;->start(" in o for _, o in lib)))

@@ -80,7 +80,10 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   dialog (saved and reverted), settings, no crash in logcat.
   - Google Analytics (`com/a/b/a`) cannot be removed: `com/a/b/a/a/a/m` is a superclass of every activity.
     It is neutralised instead (flags forced off, host `analytics.invalid`).
-  - Not done: the unused layout / string resources of the removed features (they live in binary XML).
+  - Unused resources (16 strings incl. Twitter / tracking / ad texts, 6 drawables, 1 layout) are pruned by
+    `tools/prune_res.py`: the original binary XML files are kept, only `resources.arsc` is rebuilt (apktool /
+    aapt2) with ids pinned; the build checks that all 1022 remaining ids are unchanged. The hidden Twitter
+    checkbox in the rating dialog layout (`comicRatingTweet`) is still there: its code is still wired to it.
 
 ### Later / only if needed - Android 14+
 - Android 14 refuses targetSdk < 23 without `--bypass-low-target-sdk-block`; targetSdk is now 25,
