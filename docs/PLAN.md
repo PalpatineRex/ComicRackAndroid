@@ -1,49 +1,68 @@
 # Plan
 
+Goal: port ComicRack Community Edition to Android. The app follows CE's builds:
+CE `0.9.186` = Android `2.9.186`, and CE features that make sense on Android are ported.
 Items marked (?) are hypotheses still to test.
 
 ## Approach
 
-Patch the original APK directly instead of decompiling to Java: the code is ProGuard-obfuscated and
-decompiler output rarely recompiles. The base APK is never stored in this repo; the pipeline fetches
-it and **verifies its SHA-256** before touching it (see `tools/patch_lvl.py`).
+Patch the original APK instead of decompiling to Java: the code is ProGuard-obfuscated and
+decompiler output rarely recompiles. Byte patches where the size does not change, a smali
+round-trip (apktool) for everything else, our own classes in `tools/smali/`. The base APK is
+never stored in this repo; the build fetches it and **verifies its SHA-256** (`tools/patch_lvl.py`).
 
-Final distribution: signed APKs published as GitHub Releases of this repository, which the app itself
-will poll for updates. Others can use this fork as a base.
+Distribution (not started): signed APKs as GitHub Releases of this repository, polled by the
+app for updates. Nothing has been published yet.
 
-## Milestones
+## Versioning
 
-### M1 - Patched, re-signed build (done and tested on a device; CI not written yet)
-- `tools/patch_lvl.py`: 5 byte edits to `classes.dex` + header fix. Output `classes.dex` is
-  **byte-identical to the circulating cracked 1.80** (checked with `tools/verify_patch.py`).
-- `tools/sign.sh`: v1 signature with the JDK's `jarsigner`; key comes from CI secrets, never from the repo.
-- Still to do: GitHub Actions workflow (fetch base APK, verify hash, patch, sign, publish release),
-  and a one-time real signing key created by the maintainer.
-- Note: the license-check bypass only neutralises the check; the
-  `CHECK_LICENSE` permission is still declared.
+`tools/patch_manifest.py --ce-version X.Y.Z [--rev N]`:
+versionName `(X+2).Y.Z[.N]`, versionCode `X*10^7 + Y*10^5 + Z*100 + N` (CE 0.9.186 -> 2.9.186 / 918600).
+`--rev` is for an Android-only fix between two CE builds. `ce-version.txt` = CE build the fork is at.
 
-### Build chain (current, run on the maintainer's PC; CI to come)
-1. `patch_lvl.py base.apk s1.apk` (license check; verified identical to the circulating crack)
-2. `patch_fork.py s1.apk s2.apk` (EULA skipped, About and Settings links)
-3. `patch_manifest.py s2.apk s3.apk --version-name X --version-code N` (targetSdk 25)
-4. `patch_smali.py s3.apk s4.apk --apktool apktool_2.9.3.jar` (Help button URL; needs Java)
-5. `verify_build.py s4.apk --version-name X --version-code N` (all checks must pass)
-6. `sign_v1.py sign s4.apk out.apk key.pem cert.pem`
+## Build (run on the maintainer's PC; CI to come)
 
-Version 1.81 / versionCode 104 = first fork build. Tested on a Doogee V30 Pro (Android 13):
-starts, library loads, no letterbox, no old-Android warning.
+    python tools/build.py --base ComicRack.1.80.apk --ce-version 0.9.186 \
+        --apktool apktool_2.9.3.jar --key key.pem --cert cert.pem --out ComicRackAndroid.apk
 
-### M2 - Auto-update
-- App checks the GitHub Releases API of this repo, compares versionCode, downloads the APK and hands it
-  to the system installer (needs `REQUEST_INSTALL_PACKAGES`).
-- Needs a code change in the app (smali). Every release must be signed with the same key.
-- Stopgap needing no code: Obtainium pointed at this repo's releases.
+Chain: `patch_lvl` (license check, identical to the circulating crack) -> `patch_fork` (EULA,
+links, Settings cleanup, History notes) -> `patch_manifest` (targetSdk 25, version) ->
+`patch_smali` (code changes, ported CE features) -> `verify_build` (every change checked by
+disassembly; nothing is signed if a check fails) -> `sign_v1`.
+Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apktool 2.9.3.
 
-### M3 - Cleanup
-- Remove AdMob and twitter4j (dead network code).
-- Test Wi-Fi sync against ComicRack Community Edition on a real device and PC.
+## Status
+
+### Done, tested on a Doogee V30 Pro (Android 13), build 2.9.186
+- Starts and loads the library; no letterbox; no "older version of Android" warning.
+- License check, EULA dialog, dead Twitter / usage-statistics options, dead FAQ / forum links removed.
+- Links to the old site point to this repo (Settings, About, Help); About shows `2.9.186`.
+- History tab starts with the fork's notes.
+- Ported from CE, verified with `tests/fixtures/cra_test_pages.cbz` (pages shown 1, 2, 3, 10,
+  junk files skipped): natural page order, `__MACOSX` / `._` files ignored, HEIC (Android 9+)
+  and AVIF (Android 12+) pages.
+
+### Following CE
+- `.github/workflows/ce-watch.yml` runs daily and opens one issue per new CE build with its notes
+  ("Port ComicRack CE X (Android 2.Y.Z)"). Dry run tested on GitHub.
+
+### CE features still to port (Android-relevant)
+- Go To page in the reader.
+- Natural sort and French articles (Le, La, Les, L') for the library lists (pages are done).
+- RAR5 (the app's RAR reader dates from 2014; to test with a RAR5 CBR).
+- Continuous reading mode (webtoon / vertical strip).
+- MetronInfo.xml / ComicBook.xml metadata, Translator field.
+
+### Next
+- Auto-update: app checks this repo's GitHub Releases, compares versionCode, downloads and hands the
+  APK to the installer (`REQUEST_INSTALL_PACKAGES`). Every release must use the same key.
+  Stopgap without code: Obtainium on this repo's releases.
+- Real signing key, created and kept by the maintainer (never in the repo or a chat).
+- CI release workflow (fetch base, build, verify, sign with secrets, publish) - maintainer's call.
+- Test Wi-Fi sync against ComicRack CE on a real PC.
+- Remove dead AdMob / twitter4j code.
 
 ### Later / only if needed - Android 14+
-- Android 14 refuses to install apps with targetSdk < 23 without `--bypass-low-target-sdk-block`.
-  Raising targetSdk means adding runtime storage-permission handling (?) and possibly "all files access"
-  on Android 11+ (?). Deferred: Android 13 and older install the current build normally.
+- Android 14 refuses targetSdk < 23 without `--bypass-low-target-sdk-block`; targetSdk is now 25,
+  so this should be solved (?) - to test on an Android 14 device. Fresh installs must grant storage
+  in Settings until the app requests it itself.

@@ -1,9 +1,11 @@
 # ComicRackAndroid
 
-A maintained fork of the **ComicRack Android client** (cYo Soft, last release 1.80, 2014), meant to
-work with [ComicRack Community Edition](https://github.com/maforget/ComicRackCE) on the desktop.
+A maintained fork of the **ComicRack Android client** (cYo Soft, last release 1.80, 2014) that follows
+[ComicRack Community Edition](https://github.com/maforget/ComicRackCE): version 2.9.186 = CE 0.9.186,
+with CE features ported to Android.
 
-**Status: analysis phase. Nothing builds yet.** See [docs/PLAN.md](docs/PLAN.md).
+**Status: 2.9.186 builds and runs on Android 13 (test key). No release published yet.**
+See [docs/PLAN.md](docs/PLAN.md).
 
 ## Goals
 
