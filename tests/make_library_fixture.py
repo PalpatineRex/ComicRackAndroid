@@ -2,10 +2,11 @@
 """Generate tests/fixtures/library_sort/*.cbz: one-page comics whose ComicInfo.xml
 series names exercise the library sort (invented names, no third-party content).
 
-Expected series order with the fork (articles ignored, natural numbers):
-  Alpha, L'Arbre, Les Bateaux, La Montagne, Serie 2, Serie 10, The Yeti, Le Zebre
-Original 1.80 order (only the/der/die/das ignored, plain text compare):
-  Alpha, L'Arbre, La Montagne, Le Zebre, Les Bateaux, Serie 10, Serie 2, The Yeti
+Expected series order with the fork (articles and accents ignored, natural numbers):
+  Alpha, L'Arbre, Les Bateaux, Ecureuil (accented), La Montagne, Serie 2 (accented), Serie 10,
+  The Yeti, Le Zebre
+Original 1.80 order (only the/der/die/das ignored, plain text compare, accents after z):
+  Alpha, L'Arbre, La Montagne, Le Zebre, Les Bateaux, Serie 10, The Yeti, Serie 2, Ecureuil
 
 Needs: pip install pillow
 """
@@ -17,7 +18,7 @@ from xml.sax.saxutils import escape
 from PIL import Image, ImageDraw, ImageFont
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "library_sort")
-SERIES = ["Le Zebre", "Serie 10", "Alpha", "Les Bateaux", "The Yeti", "La Montagne", "Serie 2", "L'Arbre"]
+SERIES = ["Le Zebre", "Serie 10", "Alpha", "Les Bateaux", "The Yeti", "La Montagne", "S\u00e9rie 2", "L'Arbre", "\u00c9cureuil"]
 
 
 def cover(text: str) -> bytes:
