@@ -41,6 +41,8 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 - Ported from CE, verified with `tests/fixtures/cra_test_pages.cbz` (pages shown 1, 2, 3, 10,
   junk files skipped): natural page order, `__MACOSX` / `._` files ignored, HEIC (Android 9+)
   and AVIF (Android 12+) pages.
+- Library sort: natural numbers, accents ignored, articles the/der/die/das + le/la/les/l' ignored
+  (verified on the phone with `tests/smali/cra/test/SortTest.smali` run through app_process).
 
 ### Following CE
 - `.github/workflows/ce-watch.yml` runs daily and opens one issue per new CE build with its notes
@@ -48,15 +50,22 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 
 ### CE features still to port (Android-relevant)
 - Go To page in the reader.
-- Natural sort and French articles (Le, La, Les, L') for the library lists (pages are done).
 - RAR5 (the app's RAR reader dates from 2014; to test with a RAR5 CBR).
 - Continuous reading mode (webtoon / vertical strip).
 - MetronInfo.xml / ComicBook.xml metadata, Translator field.
 
+### Written, assembles, not yet run on a device
+- Update check (`tools/smali/cra/fork/Updater.smali`, `UpdatePrompt.smali`): at most once a day when
+  the library opens, reads `releases/latest` of this repo; tag `2.9.187` / `v2.9.187.1` -> versionCode
+  with the build formula; if newer, "Version X is available. Update now?" -> opens the release's `.apk`
+  asset in the browser (download + system installer). No release / no network = nothing happens.
+  Release rules: tag = versionName, one `.apk` asset, same signing key every time.
+- Usage statistics removed: opt-in popup never shown, app and Google Analytics flags forced off,
+  GA host replaced by `analytics.invalid`.
+- On-device checks: `tools/device_test.ps1` (app_process tests + optional test build that sees a
+  fake 2.9.999 release from `tests/fixtures/fake_release.json`).
+
 ### Next
-- Auto-update: app checks this repo's GitHub Releases, compares versionCode, downloads and hands the
-  APK to the installer (`REQUEST_INSTALL_PACKAGES`). Every release must use the same key.
-  Stopgap without code: Obtainium on this repo's releases.
 - Real signing key, created and kept by the maintainer (never in the repo or a chat).
 - CI release workflow (fetch base, build, verify, sign with secrets, publish) - maintainer's call.
 - Test Wi-Fi sync against ComicRack CE on a real PC.

@@ -111,6 +111,12 @@ EDITS = [
            "invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z") +
      "\n\n    :cra_img_end\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;"),
 
+    # Google Analytics endpoint -> reserved never-resolving domain (RFC 2606 ".invalid"),
+    # on top of the tracking flags forced off in patch_fork.py.
+    ("smali/com/a/b/a/a/r.smali",
+     'const-string v0, "www.google-analytics.com"',
+     'const-string v0, "analytics.invalid"'),
+
     # Sort articles: rebuild bi.h just before it is stored (v1/v2 are scratch there,
     # both are overwritten before their next read in bi.<clinit>).
     (BI_SMALI,
@@ -132,6 +138,13 @@ LINE_EDITS = [
     # compareToIgnoreCase. Natural order there; 0 still means equalsIgnoreCase.
     (BI_SMALI, ".method public static c(Ljava/lang/String;Ljava/lang/String;)I",
      "Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I", NATURAL),
+    # Update check (cra.fork.Updater, at most once a day) when the library starts,
+    # right after LibraryActivity.a(Bundle) calls its base class.
+    ("smali/com/cyo/comicrack/viewer/LibraryActivity.smali", None,
+     "Lcom/cyo/comicrack/viewer/ep;->a(Landroid/os/Bundle;)V",
+     [("Lcom/cyo/comicrack/viewer/ep;->a(Landroid/os/Bundle;)V",
+       "Lcom/cyo/comicrack/viewer/ep;->a(Landroid/os/Bundle;)V\n\n"
+       "    invoke-static {p0}, Lcra/fork/Updater;->start(Landroid/app/Activity;)V")]),
 ]
 
 EXTRA_SMALI_DIR = os.path.join(HERE, "smali")  # our own classes, copied as is
@@ -171,6 +184,11 @@ def main() -> None:
     while "--extra-smali" in args:  # test-only classes (tests/smali), never for releases
         i = args.index("--extra-smali")
         extra_dirs.append(os.path.abspath(args[i + 1]))
+        del args[i:i + 2]
+    update_url = None  # test-only: point the update check at a fake release JSON
+    if "--update-url" in args:
+        i = args.index("--update-url")
+        update_url = args[i + 1]
         del args[i:i + 2]
     if len(args) != 2:
         raise SystemExit(__doc__)
@@ -218,6 +236,14 @@ def main() -> None:
                     os.makedirs(os.path.dirname(target), exist_ok=True)
                     shutil.copyfile(os.path.join(root, name), target)
                     print("added", rel)
+        if update_url:
+            path = os.path.join(work, "smali", "cra", "fork", "Updater.smali")
+            text = read(path)
+            real = "https://api.github.com/repos/PalpatineRex/ComicRackAndroid/releases/latest"
+            if text.count(real) != 1:
+                raise SystemExit("Updater.smali: release URL not found")
+            write(path, text.replace(real, update_url))
+            print("TEST BUILD: update check reads", update_url)
         built = os.path.join(tmp, "built.apk")
         run(["java", "-jar", jar, "b", "-o", built, work])
         with zipfile.ZipFile(built) as zb:

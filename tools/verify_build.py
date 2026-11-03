@@ -82,8 +82,31 @@ def main() -> None:
     if want_code:
         checks.append((f"versionCode {want_code}", apk.get_androidversion_code() == str(want_code)))
     names = {c.get_name() for c in dex.get_classes()}
-    checks.append(("classes: 1421 original + cra/fork/Natural",
-                   len(names) == 1422 and "Lcra/fork/Natural;" in names))
+    ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;"}
+    checks.append(("classes: 1421 original + cra/fork (Natural, Updater, UpdatePrompt)",
+                   len(names) == 1421 + len(ours) and ours <= names))
+    lib = method_ins(dex, "Lcom/cyo/comicrack/viewer/LibraryActivity;", "a", "(Landroid/os/Bundle;)V") or []
+    checks.append(("Update check started by LibraryActivity",
+                   any("Lcra/fork/Updater;->start(" in o for _, o in lib)))
+    checks.append(("Update check reads this repo's releases",
+                   "https://api.github.com/repos/PalpatineRex/ComicRackAndroid/releases/latest" in strings))
+
+    def forced_false(cls, name, desc, key):
+        ins = method_ins(dex, cls, name, desc) or []
+        out = [i for i, (n, o) in enumerate(ins) if n.startswith("const-string") and f'"{key}"' in o]
+        if not out:
+            return False
+        after = ins[out[0]:]
+        call = next((i for i, (n, o) in enumerate(after) if "getBoolean" in o), None)
+        return call is not None and after[call + 1] == ("const/4", "v0, 0")
+    checks.append(("Stats: opt-in popup never asked (ask_tracking_enabled -> false)",
+                   forced_false("Lcom/cyo/comicrack/viewer/a;", "b", "()Z", "ask_tracking_enabled")))
+    checks.append(("Stats: app tracking flag always false",
+                   forced_false("Lcom/cyo/comicrack/viewer/a;", "a", "()Z", "tracking_enabled")))
+    checks.append(("Stats: Google Analytics own flag always false",
+                   forced_false("Lcom/a/b/a/a/a/b;", "a", "(Landroid/content/Context;)V", "tracking_enabled")))
+    checks.append(("Stats: Google Analytics host neutralised",
+                   "www.google-analytics.com" not in strings and "analytics.invalid" in strings))
     page_filter = method_ins(dex, "Lcom/cyo/comicrack/a/b/j;", "a", "(Ljava/lang/String;)Z") or []
     filter_strings = {o.split(", ", 1)[-1].strip('"') for n, o in page_filter if n.startswith("const-string")}
     checks.append(("CE: __MACOSX / AppleDouble files ignored in archives",

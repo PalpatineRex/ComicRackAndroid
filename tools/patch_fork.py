@@ -41,6 +41,16 @@ DEX_PATCHES = [
     (0x0D1B14, bytes.fromhex("17"), bytes.fromhex("57")),
     #  - "if (v6) skip setVisibility(GONE)" -> if-ne v6, v6 (never taken): always hidden
     (0x0D1B16, bytes.fromhex("39060700"), bytes.fromhex("33660700")),
+    # Usage statistics (embedded Google Analytics) off for good: each read of the
+    # preference keeps its getBoolean call but its "move-result v0" becomes
+    # "const/4 v0, 0", so the answer is always false.
+    #  - viewer.a.b(): "ask_tracking_enabled" -> never show the opt-in dialog
+    (0x0DEE28, bytes.fromhex("0a00"), bytes.fromhex("1200")),
+    #  - viewer.a.a(): "tracking_enabled" -> app never enables tracking
+    (0x0DED80, bytes.fromhex("0a00"), bytes.fromhex("1200")),
+    #  - Google Analytics config b.a(Context): its own "tracking_enabled" read -> off,
+    #    even for users who said yes in the original app
+    (0x0BA224, bytes.fromhex("0a00"), bytes.fromhex("1200")),
 ]
 
 # Lines of about.txt removed entirely (dead FAQ and forum of the old site).
@@ -71,6 +81,8 @@ FORK_CHANGES = {
         "Removed the Google Play license check (the store listing no longer exists)",
         "Removed the first-run license agreement dialog",
         "Removed the dead Twitter and usage statistics options (Settings, rating dialog)",
+        "Usage statistics removed: no more opt-in popup, Google Analytics never sends anything",
+        "Update check: tells you when a newer version is published on GitHub (once a day)",
         "Removed the dead FAQ and forum links",
         "Links to the old website now point to the fork (Settings, About, Help)",
     ],
