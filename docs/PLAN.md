@@ -1,38 +1,38 @@
 # Plan
 
-Everything below is a plan, not a result. Items marked (?) are hypotheses to test.
+Items marked (?) are hypotheses still to test.
 
 ## Approach
 
-Decompiling to Java and rebuilding a Gradle project is unlikely to work: the code is ProGuard-obfuscated
-and decompiler output rarely recompiles. Preferred approach: **patch the original APK at smali level in CI**
-(apktool decode, patch, rebuild, zipalign, sign with our own key), running on GitHub Actions
-because the tooling cannot be downloaded in the author's current sandbox.
+Patch the original APK directly instead of decompiling to Java: the code is ProGuard-obfuscated and
+decompiler output rarely recompiles. The base APK is never stored in this repo; the pipeline fetches
+it and **verifies its SHA-256** before touching it (see `tools/patch_lvl.py`).
 
-The base APK is never stored in this repo. CI downloads it from the public release of
-`maforget/ComicRackKeygen` and **verifies the SHA-256** listed in docs/ANALYSIS.md before patching.
+Final distribution: signed APKs published as GitHub Releases of this repository, which the app itself
+will poll for updates. Others can use this fork as a base.
 
 ## Milestones
 
-### M1 - Reproducible patched build
-- CI workflow: download base APK, check hash, apktool decode, apply patches, rebuild, sign, upload artifact.
-- Patches: remove the LVL check and `CHECK_LICENSE`; new signing key (stored as an Actions secret);
-  versionName suffix so it is distinguishable from 1.80.
-- Exit criterion: an APK installs on a real device and opens the library.
+### M1 - Patched, re-signed build (tools done and tested locally; CI not written yet)
+- `tools/patch_lvl.py`: 5 byte edits to `classes.dex` + header fix. Output `classes.dex` is
+  **byte-identical to the circulating cracked 1.80** (checked with `tools/verify_patch.py`).
+- `tools/sign.sh`: v1 signature with the JDK's `jarsigner`; key comes from CI secrets, never from the repo.
+- Still to do: GitHub Actions workflow (fetch base APK, verify hash, patch, sign, publish release),
+  and a one-time real signing key created by the maintainer.
+- Not yet tested on a device. Note: the license-check bypass only neutralises the check; the
+  `CHECK_LICENSE` permission is still declared.
 
-### M2 - Modern Android install
-- Raise targetSdk to at least 23 so Android 14 installs it normally (consistent with the
-  `--bypass-low-target-sdk-block` requirement in the maforget release notes).
-- Risk: targetSdk >= 23 means runtime permissions. The app does not request them today, so code
-  must be added (smali) to ask for storage access (?). Android 11+ may need "all files access" for
-  comic files (?). Must be tested on the target phone before choosing the final targetSdk.
-
-### M3 - Auto-update
+### M2 - Auto-update
 - App checks the GitHub Releases API of this repo, compares versionCode, downloads the APK and hands it
   to the system installer (needs `REQUEST_INSTALL_PACKAGES`).
+- Needs a code change in the app (smali). Every release must be signed with the same key.
 - Stopgap needing no code: Obtainium pointed at this repo's releases.
-- Requires the same signing key on every release.
 
-### M4 - Cleanup
+### M3 - Cleanup
 - Remove AdMob and twitter4j (dead network code).
 - Test Wi-Fi sync against ComicRack Community Edition on a real device and PC.
+
+### Later / only if needed - Android 14+
+- Android 14 refuses to install apps with targetSdk < 23 without `--bypass-low-target-sdk-block`.
+  Raising targetSdk means adding runtime storage-permission handling (?) and possibly "all files access"
+  on Android 11+ (?). Deferred: Android 13 and older install the current build normally.

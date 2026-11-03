@@ -33,6 +33,11 @@ In `i.a(m)` a conditional branch (`if-eqz`) became `if-ne v0, v0` (always taken)
 one-instruction patch of the license check. Classes `l` and `t` also differ; only `i` was read in detail.
 Resources and manifest are identical apart from signing.
 
+At byte level the whole difference is **5 edits in `classes.dex`** (offsets 0x0C121A, 0x0C160C, 0x0C190C,
+0x0C1910, 0x0C1FB5) plus the dex header checksum/SHA-1. `tools/patch_lvl.py` applies exactly those
+edits to the original; the resulting `classes.dex` has the same SHA-256 as the cracked one
+(`922c93a2...aaf30`).
+
 ## Desktop side of Wi-Fi sync (from ComicRackCE, commit 7a3ab2e, 2026-10-23)
 
 Source: `ComicRack.Engine/Sync/` in `maforget/ComicRackCE`.
