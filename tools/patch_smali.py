@@ -167,6 +167,11 @@ def main() -> None:
     i = args.index("--apktool")
     jar = args[i + 1]
     del args[i:i + 2]
+    extra_dirs = [EXTRA_SMALI_DIR]
+    while "--extra-smali" in args:  # test-only classes (tests/smali), never for releases
+        i = args.index("--extra-smali")
+        extra_dirs.append(os.path.abspath(args[i + 1]))
+        del args[i:i + 2]
     if len(args) != 2:
         raise SystemExit(__doc__)
     src, dst = args
@@ -202,10 +207,11 @@ def main() -> None:
                 lines[idx[0]] = lines[idx[0]].replace(old, new)
             write(path, "\n".join(lines))
             print("edited", rel, "(line)")
-        for root, _dirs, files in os.walk(EXTRA_SMALI_DIR):
+        for base in extra_dirs:
+          for root, _dirs, files in os.walk(base):
             for name in files:
                 if name.endswith(".smali"):
-                    rel = os.path.relpath(os.path.join(root, name), EXTRA_SMALI_DIR)
+                    rel = os.path.relpath(os.path.join(root, name), base)
                     target = os.path.join(work, "smali", rel)
                     if os.path.exists(target):
                         raise SystemExit(f"class already exists: {rel}")
