@@ -5,7 +5,7 @@
 # Storage access for fresh installs. With targetSdk >= 23 storage is a runtime
 # permission: an upgraded 1.80 install keeps it, a fresh install does not, and the
 # library stays empty. LibraryActivity calls ensure() at start; when the user
-# grants access, onResult() restarts the activity so the library is scanned.
+# grants access, onResult() restarts the app so the library is scanned.
 #
 # Java equivalent:
 #   static void ensure(Activity a) {
@@ -13,7 +13,7 @@
 #       a.requestPermissions(new String[]{READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, 0x4352);
 #   }
 #   static void onResult(Activity a, int code, int[] results) {
-#     if (code == 0x4352 && results != null && results.length > 0 && results[0] == GRANTED) a.recreate();
+#     if (code == 0x4352 && results != null && results.length > 0 && results[0] == GRANTED) restart the app (launch intent + killProcess);
 #   }
 
 .method public static ensure(Landroid/app/Activity;)V
@@ -62,7 +62,7 @@
 .end method
 
 .method public static onResult(Landroid/app/Activity;I[I)V
-    .locals 1
+    .locals 2
 
     :try_start_0
     const/16 v0, 0x4352
@@ -81,7 +81,34 @@
 
     if-nez v0, :done
 
-    invoke-virtual {p0}, Landroid/app/Activity;->recreate()V
+    # Restart the whole process: a new storage grant only applies to new processes
+    # (checked on Android 13: recreate() kept "Empty comics folder", a restart loads
+    # the library). Relaunch the app in a fresh task, then end this process.
+    invoke-virtual {p0}, Landroid/app/Activity;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/content/pm/PackageManager;->getLaunchIntentForPackage(Ljava/lang/String;)Landroid/content/Intent;
+
+    move-result-object v0
+
+    if-eqz v0, :done
+
+    const v1, 0x10008000
+
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+
+    invoke-virtual {p0, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
+
+    invoke-static {}, Landroid/os/Process;->myPid()I
+
+    move-result v0
+
+    invoke-static {v0}, Landroid/os/Process;->killProcess(I)V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :caught_0
 

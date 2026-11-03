@@ -107,6 +107,12 @@
 
     invoke-direct {v0, v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;Landroid/net/Uri;)V
 
+    # Own task (FLAG_ACTIVITY_NEW_TASK), otherwise the browser / GitHub app opens on
+    # top of ComicRack's task and comes back every time ComicRack is launched.
+    const/high16 v1, 0x10000000
+
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+
     iget-object v1, p0, Lcra/fork/UpdatePrompt;->a:Landroid/app/Activity;
 
     invoke-virtual {v1, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
