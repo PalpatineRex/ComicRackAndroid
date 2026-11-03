@@ -13,13 +13,13 @@ will poll for updates. Others can use this fork as a base.
 
 ## Milestones
 
-### M1 - Patched, re-signed build (tools done and tested locally; CI not written yet)
+### M1 - Patched, re-signed build (done and tested on a device; CI not written yet)
 - `tools/patch_lvl.py`: 5 byte edits to `classes.dex` + header fix. Output `classes.dex` is
   **byte-identical to the circulating cracked 1.80** (checked with `tools/verify_patch.py`).
 - `tools/sign.sh`: v1 signature with the JDK's `jarsigner`; key comes from CI secrets, never from the repo.
 - Still to do: GitHub Actions workflow (fetch base APK, verify hash, patch, sign, publish release),
   and a one-time real signing key created by the maintainer.
-- Not yet tested on a device. Note: the license-check bypass only neutralises the check; the
+- Note: the license-check bypass only neutralises the check; the
   `CHECK_LICENSE` permission is still declared.
 
 ### Build chain (current, run on the maintainer's PC; CI to come)
