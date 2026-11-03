@@ -109,6 +109,58 @@ def replace_strings(data: bytes, mapping: dict[str, str]) -> bytes:
     return bytes(out)
 
 
+RES_XML_END_ELEMENT_TYPE = 0x0103
+
+
+def remove_elements(data: bytes, keys: list[str]) -> bytes:
+    """Remove every element (with its children) that has an attribute whose raw string
+    value is one of `keys` (e.g. a preference's android:key). Each key must match exactly
+    one element. Unused strings stay in the pool, which is harmless."""
+    strings = read_strings(data)
+    wanted = {}
+    for k in keys:
+        if strings.count(k) != 1:
+            raise ValueError(f"key {k!r} not found exactly once in the string pool")
+        wanted[strings.index(k)] = k
+    _, xml_hsize, _ = struct.unpack_from("<HHI", data, 0)
+    chunks, pos = [], xml_hsize
+    while pos < len(data):
+        ctype, chsize, csize = struct.unpack_from("<HHI", data, pos)
+        if csize == 0:
+            raise ValueError("corrupt chunk")
+        chunks.append((pos, ctype, chsize, csize))
+        pos += csize
+    drop, found, depth = set(), [], 0
+    for i, (pos, ctype, chsize, _csize) in enumerate(chunks):
+        if depth:
+            drop.add(i)
+            if ctype == RES_XML_START_ELEMENT_TYPE:
+                depth += 1
+            elif ctype == RES_XML_END_ELEMENT_TYPE:
+                depth -= 1
+            continue
+        if ctype == RES_XML_START_ELEMENT_TYPE:
+            ext = pos + chsize
+            astart, asize, acount = struct.unpack_from("<HHH", data, ext + 8)
+            for j in range(acount):
+                raw = struct.unpack_from("<I", data, ext + astart + j * asize + 8)[0]
+                if raw in wanted:
+                    found.append(wanted[raw])
+                    drop.add(i)
+                    depth = 1
+                    break
+    if depth:
+        raise ValueError("unbalanced elements")
+    if sorted(found) != sorted(keys):
+        raise ValueError(f"elements found {found}, expected {keys}")
+    out = bytearray(data[:xml_hsize])
+    for i, (pos, _t, _h, csize) in enumerate(chunks):
+        if i not in drop:
+            out += data[pos:pos + csize]
+    struct.pack_into("<I", out, 4, len(out))
+    return bytes(out)
+
+
 def set_int_attr(data: bytes, res_id: int, value: int) -> tuple[bytes, int]:
     """Set the single integer attribute whose name has resource id res_id. Returns (data, old)."""
     buf = bytearray(data)

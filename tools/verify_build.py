@@ -55,6 +55,17 @@ def main() -> None:
     checks.append(("About links: no cyolito.com", "cyolito.com" not in about))
     prefs = AXMLPrinter(z.read("res/xml/preferences_general.xml")).get_xml().decode()
     checks.append(("Settings 'Visit ComicRack' -> repo", f'android:data="{REPO}"' in prefs))
+    checks.append(("Settings: Twitter and usage statistics removed",
+                   all(k not in prefs for k in ("tweet_include_thumb", "general_twitter_reset",
+                                                "tracking_enabled", "general_social"))))
+    checks.append(("Settings: other options kept",
+                   all(k in prefs for k in ("general_enable_wireless", "general_startup_open_last",
+                                            "general_library_use_volumes", "visit_comicrack"))))
+    changes = z.read("res/raw/changes.txt").decode("utf-8")
+    first = changes.split("\r\n", 1)[0]
+    checks.append((f"History starts with fork notes ({first})",
+                   want_name is None or first == f"V{want_name}:"))
+    checks.append(("History keeps original notes", "V1.80:" in changes))
     checks.append(("targetSdk 25", apk.get_target_sdk_version() == "25"))
     if want_name:
         checks.append((f"versionName {want_name}", apk.get_androidversion_name() == want_name))

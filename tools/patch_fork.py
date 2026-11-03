@@ -8,8 +8,12 @@
 2. About screen (res/raw/about.txt): links to the defunct comicrack.cyolito.com
    site are pointed to maintained pages. Only URLs are replaced; the text itself
    comes from the base APK at build time and is not stored in this repository.
-3. Settings > "Visit ComicRack" (res/xml/preferences_general.xml, binary XML):
-   intent URL -> this repository.
+3. Settings (res/xml/preferences_general.xml, binary XML): "Visit ComicRack" opens
+   this repository; the dead Social (Twitter) section and the "Usage statistics"
+   option are removed. The code reads those keys with getBoolean(key, default),
+   so the defaults apply (usage statistics default: off).
+4. History tab (res/raw/changes.txt): the fork's own release notes (FORK_CHANGES,
+   written for this project) are prepended to the original history.
    Still pointing to the old site: the About dialog's "Help" button (URL stored in
    classes.dex; changing it needs a dex rebuild, see docs/PLAN.md).
 
@@ -40,6 +44,32 @@ ABOUT_LINKS = [
     ("http://comicrack.cyolito.com/forum", REPO + "/issues"),
     ('href="http://comicrack.cyolito.com"', 'href="' + CE + '"'),  # "ComicRack for Windows"
 ]
+
+
+REMOVED_PREFERENCES = ["preference_category_general_social", "tracking_enabled"]
+
+# Fork release notes, newest first. Same layout as the original changes.txt.
+FORK_CHANGES = {
+    "1.81": [
+        "Community fork, maintained at github.com/PalpatineRex/ComicRackAndroid",
+        'Targets Android 7.1: no more "built for an older version of Android" warning',
+        "Uses the full screen on tall phones (no more empty band at the bottom)",
+        "Removed the Google Play license check (the store listing no longer exists)",
+        "Removed the first-run license agreement dialog",
+        "Removed the dead Twitter and usage statistics options",
+        "Links to the old website now point to the fork (Settings, About, Help)",
+    ],
+}
+
+
+def history_header() -> bytes:
+    lines = []
+    for version, items in FORK_CHANGES.items():
+        lines.append(f"V{version}:")
+        lines.append("")
+        lines += ["• " + item for item in items]
+        lines.append("")
+    return ("\r\n".join(lines) + "\r\n").encode("utf-8")
 
 
 def is_signature_entry(name: str) -> bool:
@@ -87,7 +117,13 @@ def main() -> None:
                 print("about.txt: links replaced")
             elif info.filename == "res/xml/preferences_general.xml":
                 data = axml.replace_strings(data, {"http://comicrack.cyolito.com": REPO})
-                print("preferences_general.xml: 'Visit ComicRack' -> repo")
+                data = axml.remove_elements(data, REMOVED_PREFERENCES)
+                print("preferences_general.xml: 'Visit ComicRack' -> repo, Twitter/statistics removed")
+            elif info.filename == "res/raw/changes.txt":
+                if not data.startswith(b"V1.80:"):
+                    raise SystemExit("changes.txt: unexpected start, refusing to patch")
+                data = history_header() + data
+                print("changes.txt: fork release notes added")
             out = zipfile.ZipInfo(info.filename, date_time=info.date_time)
             out.compress_type = info.compress_type
             out.external_attr = info.external_attr
