@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 /**
  * Vertical strip reader drawn inside the (already declared) reader activity. Talks to the original
  * app's comic source (obfuscated interface com.cyo.comicrack.a.b.h) by reflection: a() = ComicInfo,
- * c(int) = page bitmap. ComicInfo: e() = page count, field g = current page, b(int) = set current
+ * a(int page, int size) = page bitmap (c(int) is only a small thumbnail). ComicInfo: e() = page count, field g = current page, b(int) = set current
  * page, g() = furthest page read, c(int) = set furthest page.
  */
 final class ContReader implements Application.ActivityLifecycleCallbacks {
@@ -43,6 +43,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
     private final ListView list;
     private TextView label;
     private final int rowMin;
+    private final int size;
     private int shown = -1;
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
@@ -55,11 +56,12 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
         this.src = src;
         Class<?> hi = Class.forName("com.cyo.comicrack.a.b.h");
         info = hi.getMethod("a").invoke(src);
-        pageBitmap = hi.getMethod("c", int.class);
+        pageBitmap = hi.getMethod("a", int.class, int.class);
         pages = ((Integer) info.getClass().getMethod("e").invoke(info)).intValue();
         if (pages <= 0) throw new IllegalStateException("no pages");
         DisplayMetrics dm = host.getResources().getDisplayMetrics();
         rowMin = dm.widthPixels * 3 / 2;
+        size = Math.max(1024, dm.widthPixels * 2);
         int budget = (int) Math.max(8L << 20, Runtime.getRuntime().maxMemory() / 5);
         cache = new LruCache<Integer, Bitmap>(budget) {
             @Override
@@ -165,7 +167,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
             public void run() {
                 Bitmap bm = null;
                 try {
-                    bm = (Bitmap) pageBitmap.invoke(src, i);
+                    bm = (Bitmap) pageBitmap.invoke(src, i, size);
                 } catch (Throwable t) {
                     // page stays blank
                 }
