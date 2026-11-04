@@ -93,7 +93,9 @@ def main() -> None:
     ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;",
             "Lcra/fork/Rar5Fix;", "Lcra/fork/Rar5Reader;", "Lcra/fork/Rar5Reader$Entry;",
             "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;",
-            "Lcra/fork/Cont;", "Lcra/fork/ContReader;"}
+            "Lcra/fork/Cont;", "Lcra/fork/ContReader;", "Lcra/fork/ContReader$1;",
+            "Lcra/fork/ContReader$2;", "Lcra/fork/ContReader$3;", "Lcra/fork/ContReader$4;",
+            "Lcra/fork/ContReader$4$1;", "Lcra/fork/ContReader$Pages;"}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
     checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*), no test class",
                    len(names) == 1421 - 376 + len(ours) and ours <= names and not test_classes))
