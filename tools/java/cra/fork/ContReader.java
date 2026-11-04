@@ -45,6 +45,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
     private final int rowMin;
     private final int size;
     private int shown = -1;
+    private int pendingSel = -1;
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final Set<Integer> loading = new HashSet<Integer>();
@@ -117,7 +118,8 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
         } catch (Throwable t) {
             // reading history is optional
         }
-        list.setSelection(start);
+        pendingSel = start;
+        list.setSelectionFromTop(start, 0);
         show(start);
         host.getApplication().registerActivityLifecycleCallbacks(this);
     }
@@ -182,7 +184,13 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
                 if (res != null) cache.put(i, res);
                 ui.post(new Runnable() {
                     public void run() {
-                        if (!dead && res != null) list.invalidateViews();
+                        if (dead || res == null) return;
+                        list.invalidateViews();
+                        if (pendingSel >= 0 && i >= pendingSel) {
+                            // first layout used placeholder heights: put the saved page back on top once
+                            list.setSelectionFromTop(pendingSel, 0);
+                            pendingSel = -1;
+                        }
                     }
                 });
             }
