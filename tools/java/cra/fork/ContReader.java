@@ -98,7 +98,10 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
                 View top = v.getChildAt(0);
                 // the page that fills most of the screen counts as the current one
                 if (top != null && top.getBottom() < v.getHeight() / 2 && first + 1 < total) first++;
-                if (first + visible >= total) first = total - 1; // end of the strip: last page
+                View last = v.getChildAt(v.getChildCount() - 1);
+                if (last != null && first + visible >= total && last.getBottom() <= v.getHeight() + 2) {
+                    first = total - 1; // end of the strip: last page
+                }
                 show(first);
             }
         });
@@ -118,6 +121,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
         } catch (Throwable t) {
             // reading history is optional
         }
+        android.util.Log.i("cra.cont", "open: " + pages + " pages, start at " + start);
         pendingSel = start;
         list.setSelectionFromTop(start, 0);
         show(start);
@@ -133,6 +137,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
     private void save() {
         try {
             int p = Math.max(0, Math.min(pages - 1, shown));
+            android.util.Log.i("cra.cont", "save: page " + p);
             Class<?> ic = info.getClass();
             ic.getMethod("b", int.class).invoke(info, p);
             int far = ((Integer) ic.getMethod("g").invoke(info)).intValue();
