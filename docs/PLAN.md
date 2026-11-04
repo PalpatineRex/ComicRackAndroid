@@ -78,7 +78,16 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   MetronInfo.xml (mapped as in CE's MetronInfoProvider) is converted to ComicInfo on the fly. Checked
   on the emulator with `tests/fixtures/cra_test_comicbook.cbz` and `cra_test_metron.cbz`. Translator
   field: not done.
-- JpegXL pages (CE 0.9.184): not possible, Android has no JXL decoder for this old target.
+- JpegXL pages (CE 0.9.184): done in 2.9.186.4. Android has no JXL decoder before 14, so the release
+  APK bundles jxl-coder 2.6.1 (github.com/awxkee/jxl-coder, Apache-2.0 / BSD-3; libjxl + Brotli):
+  `tools/add_native.py` adds its `.so` files under `lib/` (arm64-v8a, armeabi-v7a, x86; AAR from Maven
+  Central, SHA-256 pinned, never committed). Its Kotlin classes are not used: `com.awxkee.jxlcoder.JxlCoder`
+  (tools/java) is a Java stand-in with the same native signatures, so no Kotlin runtime is needed.
+  `cra.fork.Img.decode` replaces the six `BitmapFactory.decodeStream` calls of the page sources
+  (`a/b/k`, `a/b/o`): it sniffs the JXL signature, otherwise delegates unchanged; `.jxl` is added to the
+  page-extension filter (`a/b/j`, Android 5+). Size ~ +14 MB (about 8 MB compressed). Tested on the
+  x86 emulator with `tests/fixtures/cra_test_jxl.cbz` (library cover, reader, continuous mode). The
+  ARM libraries are the same upstream build but were not exercised.
 
 ### Emulator testing
 - The Android emulator needs an old build on this kind of CPU (no AVX2): emulator 31.3.14 with the

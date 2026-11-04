@@ -49,7 +49,10 @@ transfer has **not been tested yet**; reports are welcome in the [issues](../../
   of the screen) and volume keys move a page; double-tap and pinch zoom are implemented but not yet
   checked on a device. Off by default (Settings > Reading and display > Continuous mode).
 - Metadata: ComicInfo.xml, ComicBook.xml and MetronInfo.xml are read (CE 0.9.185 mapping); the
-  Translator field is not. No JpegXL pages (CE 0.9.184): no decoder on this old Android target.
+  Translator field is not.
+- **JPEG XL** pages (.jxl, CE 0.9.184) are decoded by the bundled jxl-coder / libjxl library (Android 5+),
+  which adds about 14 MB to the APK (arm64-v8a, armeabi-v7a, x86). Checked on an x86 emulator; the
+  arm64 / armv7 builds of the same library are not run in my tests.
 - Releases are checked on an Android 13 phone, not on every Android version.
 
 ## For maintainers
