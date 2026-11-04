@@ -122,6 +122,18 @@ jobs:
           EOF
           cat notes.md
 
+      # One release per CE build: an older release of the same number (re-tagged) and any
+      # "X.Y.Z.N" sub-releases are removed (with their tags) before the new one is created.
+      - name: Remove superseded releases
+        if: steps.v.outputs.mode == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          for t in $(gh release list --limit 100 --json tagName -q '.[].tagName'); do
+            case "$t" in "$V"|"$V".*) echo "removing release $t"; gh release delete "$t" --cleanup-tag --yes;; esac
+          done
+
       - name: Publish release
         if: steps.v.outputs.mode == 'release'
         env:
@@ -129,4 +141,5 @@ jobs:
         run: |
           gh release create "${{ steps.v.outputs.version }}" \
             "ComicRackAndroid-${{ steps.v.outputs.version }}.apk" \
+            --target "$GITHUB_SHA" \
             --title "ComicRackAndroid ${{ steps.v.outputs.version }}" --notes-file notes.md
