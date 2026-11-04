@@ -45,8 +45,9 @@ transfer has **not been tested yet**; reports are welcome in the [issues](../../
 - **RAR5** CBR files open (since 2.9.186.1) through a one-time conversion: the first open of a big
   file is slow and the library scan is slower than with CBZ. Encrypted and multi-volume RAR5 are not
   supported.
-- No continuous / webtoon reading mode, no MetronInfo.xml / ComicBook.xml metadata (ComicInfo.xml
-  only), no JpegXL pages (CE 0.9.184).
+- Continuous (webtoon) mode is basic: a plain vertical strip, no zoom, no tap zones, no page animations.
+  It is off by default (Settings > Reading and display > Continuous mode).
+- No MetronInfo.xml / ComicBook.xml metadata (ComicInfo.xml only), no JpegXL pages (CE 0.9.184).
 - Releases are checked on an Android 13 phone, not on every Android version.
 
 ## For maintainers

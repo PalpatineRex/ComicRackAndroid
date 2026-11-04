@@ -68,11 +68,17 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   (`cra.fork.ContReader`, plain Java in `tools/java`); it reads pages through the app's own comic
   source (reflection on the obfuscated classes), keeps a bitmap cache, shows "page / total", starts at
   the saved page and saves the position and reading history on pause. Back leaves the reader. No zoom,
-  no tap zones, no page-turn animations in this mode (the strip is scrolled). Status: built, CI checks
-  pass; see the emulator test notes below.
+  no tap zones, no page-turn animations in this mode (the strip is scrolled). Tested on an Android 7.1
+  emulator (x86, software emulation): setting appears, CBZ and RAR5 comics open as a strip, pages are
+  sharp, the page counter follows the scroll, Back leaves, the position is saved and restored.
 - MetronInfo.xml / ComicBook.xml metadata, Translator field: not done (the app only reads
   ComicInfo.xml; the parser is obfuscated and a second schema is a sizeable smali job).
 - JpegXL pages (CE 0.9.184): not possible, Android has no JXL decoder for this old target.
+
+### Emulator testing
+- The Android emulator needs an old build on this kind of CPU (no AVX2): emulator 31.3.14 with the
+  `android-25 default x86` image, started with `-accel off -gpu off`; ~4 min to boot. Newer emulators
+  exit without a message. Used for the RAR5 reader test and the continuous mode.
 
 ### CE wireless sync (tested 2026-11-04)
 - CE 0.9.186 (Windows, `-local`) finds the phone: Edit > Devices > Link device lists it and pairing
