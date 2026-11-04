@@ -161,6 +161,43 @@ def remove_elements(data: bytes, keys: list[str]) -> bytes:
     return bytes(out)
 
 
+def remove_tag(data: bytes, tag: str) -> bytes:
+    """Remove the one element named `tag` (e.g. "CheckBox") with its children."""
+    strings = read_strings(data)
+    if strings.count(tag) != 1:
+        raise ValueError(f"tag {tag!r} not found exactly once in the string pool")
+    want = strings.index(tag)
+    _, xml_hsize, _ = struct.unpack_from("<HHI", data, 0)
+    chunks, pos = [], xml_hsize
+    while pos < len(data):
+        ctype, chsize, csize = struct.unpack_from("<HHI", data, pos)
+        if csize == 0:
+            raise ValueError("corrupt chunk")
+        chunks.append((pos, ctype, chsize, csize))
+        pos += csize
+    drop, found, depth = set(), 0, 0
+    for i, (pos, ctype, chsize, _csize) in enumerate(chunks):
+        if depth:
+            drop.add(i)
+            if ctype == RES_XML_START_ELEMENT_TYPE:
+                depth += 1
+            elif ctype == RES_XML_END_ELEMENT_TYPE:
+                depth -= 1
+            continue
+        if ctype == RES_XML_START_ELEMENT_TYPE and struct.unpack_from("<I", data, pos + chsize + 4)[0] == want:
+            found += 1
+            drop.add(i)
+            depth = 1
+    if found != 1 or depth:
+        raise ValueError(f"expected one <{tag}> element, found {found}")
+    out = bytearray(data[:xml_hsize])
+    for i, (pos, _t, _h, csize) in enumerate(chunks):
+        if i not in drop:
+            out += data[pos:pos + csize]
+    struct.pack_into("<I", out, 4, len(out))
+    return bytes(out)
+
+
 def set_int_attr(data: bytes, res_id: int, value: int) -> tuple[bytes, int]:
     """Set the single integer attribute whose name has resource id res_id. Returns (data, old)."""
     buf = bytearray(data)

@@ -82,8 +82,8 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
     It is neutralised instead (flags forced off, host `analytics.invalid`).
   - Unused resources (16 strings incl. Twitter / tracking / ad texts, 6 drawables, 1 layout) are pruned by
     `tools/prune_res.py`: the original binary XML files are kept, only `resources.arsc` is rebuilt (apktool /
-    aapt2) with ids pinned; the build checks that all 1022 remaining ids are unchanged. The hidden Twitter
-    checkbox in the rating dialog layout (`comicRatingTweet`) is still there: its code is still wired to it.
+    aapt2) with ids pinned; the build checks that all remaining ids are unchanged. The hidden Twitter
+    checkbox of the rating dialog is gone too (layout, lookup code, `cr` / `ch` listeners).
 
 ### Later / only if needed - Android 14+
 - Android 14 refuses targetSdk < 23 without `--bypass-low-target-sdk-block`; targetSdk is now 25,

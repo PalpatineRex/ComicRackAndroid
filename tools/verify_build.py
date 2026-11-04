@@ -50,10 +50,12 @@ def main() -> None:
                    eula is not None and any(n == "if-ne" and o.startswith("v5, v5,") for n, o in eula)))
     rating = method_ins(dex, "Lcom/cyo/comicrack/viewer/ComicRackApplication;", "a",
                         "Lcom/cyo/comicrack/a/b/h; Z Ljava/lang/Runnable;") or []
-    checks.append(("Rating dialog: Twitter checkbox always unchecked and hidden",
-                   any(n.startswith("invoke-virtual") and o.startswith("v7, v5, Landroid/widget/CheckBox;->setChecked")
-                       for n, o in rating)
-                   and any(n == "if-ne" and o.startswith("v6, v6,") for n, o in rating)))
+    ok_listener = method_ins(dex, "Lcom/cyo/comicrack/viewer/cr;", "<init>", "Lcom/cyo/comicrack/a/b/h;)V") or []
+    checks.append(("Rating dialog: no Twitter checkbox (layout, code, OK listener)",
+                   bool(rating) and bool(ok_listener)
+                   and not any("CheckBox" in o for _, o in rating)
+                   and b"CheckBox" not in AXMLPrinter(z.read("res/layout/comic_rating.xml")).get_xml()
+                   and "tweet_rating" not in strings and "tweet_include_thumb" not in strings))
     checks.append(("Help URL -> repo", f"{REPO}#readme" in strings))
     checks.append(("old documentation URL gone",
                    "http://comicrack.cyolito.com/documentation/comicrack-for-android" not in strings))

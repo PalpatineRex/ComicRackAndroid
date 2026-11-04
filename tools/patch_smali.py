@@ -165,11 +165,73 @@ CUTS = [
     # Rating dialog OK: rating and review are saved (kept); the tweet part is gone.
     (RV + "cr.smali", "    .line 975\n    iget-boolean v0, p0, Lcom/cyo/comicrack/viewer/cr;->f:Z", ".end method",
      block("return-void") + "\n"),
+    # Rating dialog (ComicRackApplication.a): the "Share on Twitter" checkbox is gone from its
+    # layout (patch_fork.py), so is the code that looked it up, set it and handed it to the
+    # OK listener cr. cr now takes (app, rating bar, review field, comic, comic file).
+    (RV + "ComicRackApplication.smali",
+     "    .line 954\n    sget v1, Lcom/cyo/comicrack/viewer/fs;->comicRatingTweet:I", "    .line 956\n", ""),
+    (RV + "ComicRackApplication.smali",
+     '    .line 958\n    const-string v1, "tweet_rating"', "    .line 962\n", ""),
+    (RV + "cr.smali", ".field private final synthetic f:Z", "# direct methods", ""),
+    (RV + "cr.smali",
+     ".method constructor <init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;Landroid/widget/RatingBar;"
+     "Landroid/widget/EditText;Lcom/cyo/comicrack/a/a/b;Lcom/cyo/comicrack/a/b/h;ZLandroid/widget/CheckBox;"
+     "Landroid/content/SharedPreferences;Landroid/app/Activity;)V",
+     "    .line 963\n    invoke-direct {p0}, Ljava/lang/Object;-><init>()V",
+     ".method constructor <init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;Landroid/widget/RatingBar;"
+     "Landroid/widget/EditText;Lcom/cyo/comicrack/a/a/b;Lcom/cyo/comicrack/a/b/h;)V\n    .locals 0\n\n"
+     "    .prologue\n    .line 1\n" +
+     block("iput-object p1, p0, Lcom/cyo/comicrack/viewer/cr;->a:Lcom/cyo/comicrack/viewer/ComicRackApplication;",
+           "iput-object p2, p0, Lcom/cyo/comicrack/viewer/cr;->b:Landroid/widget/RatingBar;",
+           "iput-object p3, p0, Lcom/cyo/comicrack/viewer/cr;->c:Landroid/widget/EditText;",
+           "iput-object p4, p0, Lcom/cyo/comicrack/viewer/cr;->d:Lcom/cyo/comicrack/a/a/b;",
+           "iput-object p5, p0, Lcom/cyo/comicrack/viewer/cr;->e:Lcom/cyo/comicrack/a/b/h;") +
+     "\n\n    .line 963\n    invoke-direct {p0}, Ljava/lang/Object;-><init>()V"),
+    # ch (dialog dismissed): it saved the checkbox state, then restores the screen and runs
+    # the Runnable; only the last two remain. New constructor (app, activity, runnable).
+    (RV + "ch.smali", ".field private final synthetic b:Landroid/content/SharedPreferences;",
+     ".field private final synthetic d:Landroid/app/Activity;", ""),
+    (RV + "ch.smali",
+     ".method constructor <init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;Landroid/content/SharedPreferences;"
+     "Landroid/widget/CheckBox;Landroid/app/Activity;Ljava/lang/Runnable;)V",
+     "    .line 1020\n    invoke-direct {p0}, Ljava/lang/Object;-><init>()V",
+     ".method constructor <init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;Landroid/app/Activity;Ljava/lang/Runnable;)V\n"
+     "    .locals 0\n\n    .prologue\n    .line 1\n" +
+     block("iput-object p1, p0, Lcom/cyo/comicrack/viewer/ch;->a:Lcom/cyo/comicrack/viewer/ComicRackApplication;",
+           "iput-object p2, p0, Lcom/cyo/comicrack/viewer/ch;->d:Landroid/app/Activity;",
+           "iput-object p3, p0, Lcom/cyo/comicrack/viewer/ch;->e:Ljava/lang/Runnable;") +
+     "\n\n    .line 1020\n    invoke-direct {p0}, Ljava/lang/Object;-><init>()V"),
+    (RV + "ch.smali", "    .line 1024\n    iget-object v0, p0, Lcom/cyo/comicrack/viewer/ch;->b:", "    .line 1026\n", ""),
+    # The id of the removed checkbox
+    (RV + "fs.smali", ".field public static final comicRatingTweet:I = 0x7f0c0091\n\n", ".field", ""),
     # Settings: reset of the Twitter login (pref no longer exists in the settings screen).
     (RV + "ip.smali", "    .line 344\n    sget-object v0, Lcom/cyo/comicrack/viewer/ComicRackApplication;->i:", "    .line 349\n", ""),
     # The app's Twitter module (with the consumer keys that were embedded in n()).
     (RV + "ComicRackApplication.smali", ".field private p:Lcom/cyo/common/b/a/f;\n\n", ".field", ""),
     (RV + "ComicRackApplication.smali", ".method public final n()Lcom/cyo/common/b/a/f;", ".method public onCreate()V", ""),
+]
+
+# Plain text edits (exactly once each), added with the rating dialog change above.
+EDITS += [
+    (RV + "ComicRackApplication.smali",
+     "invoke-direct/range {v0 .. v9}, Lcom/cyo/comicrack/viewer/cr;-><init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;"
+     "Landroid/widget/RatingBar;Landroid/widget/EditText;Lcom/cyo/comicrack/a/a/b;Lcom/cyo/comicrack/a/b/h;ZLandroid/widget/CheckBox;"
+     "Landroid/content/SharedPreferences;Landroid/app/Activity;)V",
+     "invoke-direct/range {v0 .. v5}, Lcom/cyo/comicrack/viewer/cr;-><init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;"
+     "Landroid/widget/RatingBar;Landroid/widget/EditText;Lcom/cyo/comicrack/a/a/b;Lcom/cyo/comicrack/a/b/h;)V"),
+]
+
+EDITS += [
+    (RV + "ComicRackApplication.smali",
+     "    .line 1020\n    new-instance v0, Lcom/cyo/comicrack/viewer/ch;\n\n"
+     + block("move-object v1, p0", "move-object v2, v8", "move-object v3, v7", "move-object v4, p1",
+             "move-object/from16 v5, p4",
+             "invoke-direct/range {v0 .. v5}, Lcom/cyo/comicrack/viewer/ch;-><init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;"
+             "Landroid/content/SharedPreferences;Landroid/widget/CheckBox;Landroid/app/Activity;Ljava/lang/Runnable;)V"),
+     "    .line 1020\n    new-instance v0, Lcom/cyo/comicrack/viewer/ch;\n\n"
+     + block("move-object v1, p0", "move-object v2, p1", "move-object/from16 v3, p4",
+             "invoke-direct {v0, v1, v2, v3}, Lcom/cyo/comicrack/viewer/ch;-><init>(Lcom/cyo/comicrack/viewer/ComicRackApplication;"
+             "Landroid/app/Activity;Ljava/lang/Runnable;)V")),
 ]
 
 # Banner manager common/view/a: the slots (a, b(I), constructor) are still used for layout

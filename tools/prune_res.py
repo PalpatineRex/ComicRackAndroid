@@ -27,11 +27,11 @@ UNUSED = (
         "general_twitter_reset_title", "general_twitter_reset_summary", "tweet_sent",
         "tweet_failed", "general_twitter_include_thumb_title",
         "general_twitter_include_thumb_summary", "tweet", "tweet_snapshot_caption",
-        "tweet_snapshot_text", "flat")]
+        "tweet_snapshot_text", "flat", "share_on_twitter")]
     + [("drawable", n) for n in (
         "widget_cover_black_border", "btn_contract", "btn_expand", "btn_next_page",
         "btn_prev_page", "rating_star_full_black")]
-    + [("layout", "ok_cancel_strip")]
+    + [("layout", "ok_cancel_strip"), ("id", "comicRatingTweet")]
 )
 FILE_TYPES = ("drawable", "layout")
 
@@ -78,6 +78,14 @@ def main():
                 text = re.sub(r'\s*<string name="%s"[^>]*>.*?</string>' % re.escape(n), "", text, flags=re.S)
             with open(p, "w", encoding="utf-8", newline="\n") as f:
                 f.write(text)
+        ids_xml = os.path.join(work, "res", "values", "ids.xml")
+        with open(ids_xml, encoding="utf-8") as f:
+            text = f.read()
+        for typ, name in UNUSED:
+            if typ == "id":
+                text = re.sub(r'\s*<item type="id" name="%s" />' % re.escape(name), "", text)
+        with open(ids_xml, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
         pub = os.path.join(work, "res", "values", "public.xml")
         with open(pub, encoding="utf-8") as f:
             text = f.read()

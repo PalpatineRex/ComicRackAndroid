@@ -35,12 +35,6 @@ CE = "https://github.com/maforget/ComicRackCE"
 # classes.dex produced by patch_lvl.py from the verified 1.80 base.
 DEX_PATCHES = [
     (0x0EAC30, bytes.fromhex("38050600"), bytes.fromhex("33550600")),  # EULA check
-    # End-of-book rating dialog (ComicRackApplication.a(Activity, h, Z, Runnable)),
-    # dead "Share on Twitter" checkbox:
-    #  - checkBox.setChecked(prefs "tweet_rating") -> setChecked(v5), v5 == 0 there
-    (0x0D1B14, bytes.fromhex("17"), bytes.fromhex("57")),
-    #  - "if (v6) skip setVisibility(GONE)" -> if-ne v6, v6 (never taken): always hidden
-    (0x0D1B16, bytes.fromhex("39060700"), bytes.fromhex("33660700")),
     # Usage statistics (embedded Google Analytics) off for good: each read of the
     # preference keeps its getBoolean call but its "move-result v0" becomes
     # "const/4 v0, 0", so the answer is always false.
@@ -154,6 +148,9 @@ def main() -> None:
                 data = axml.replace_strings(data, {"http://comicrack.cyolito.com": REPO})
                 data = axml.remove_elements(data, REMOVED_PREFERENCES)
                 print("preferences_general.xml: 'Visit ComicRack' -> repo, Twitter/statistics removed")
+            elif info.filename == "res/layout/comic_rating.xml":
+                data = axml.remove_tag(data, "CheckBox")  # "Share on Twitter" (code: patch_smali.py)
+                print("comic_rating.xml: Twitter checkbox removed")
             elif info.filename == "res/raw/changes.txt":
                 if not data.startswith(b"V1.80:"):
                     raise SystemExit("changes.txt: unexpected start, refusing to patch")
