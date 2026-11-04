@@ -4,8 +4,8 @@ A maintained fork of the **ComicRack Android client** (cYo Soft, last release 1.
 [ComicRack Community Edition](https://github.com/maforget/ComicRackCE) (CE) on the desktop:
 version **2.9.186 = CE 0.9.186**, with the CE features that make sense on Android ported to it.
 
-**Status:** [2.9.186](../../releases/latest) is published (signed APK, about 850 KB). It runs on
-Android 13. Details, progress and known limits: [docs/PLAN.md](docs/PLAN.md).
+**Status:** [latest release](../../releases/latest) (currently 2.9.186.4; signed APK, about 7.8 MB because it
+bundles the JPEG XL library). It runs on Android 13. Details, progress and known limits: [docs/PLAN.md](docs/PLAN.md).
 
 ## What changes compared to ComicRack 1.80
 
