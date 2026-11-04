@@ -506,9 +506,24 @@
 
     invoke-static {v0, v2, v1}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    const-string v1, "Letterer"
+    const-string v1, "~Translator"
 
     .line 165
+    filled-new-array {v1}, [Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {p0, v1}, Lcra/fork/Meta;->credits(Lorg/w3c/dom/Element;[Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "Translator"
+
+    invoke-static {v0, v2, v1}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v1, "Letterer"
+
+    .line 166
     filled-new-array {v1}, [Ljava/lang/String;
 
     move-result-object v2
@@ -521,7 +536,7 @@
 
     const-string v1, "Cover"
 
-    .line 166
+    .line 167
     filled-new-array {v1}, [Ljava/lang/String;
 
     move-result-object v1
@@ -536,12 +551,12 @@
 
     const-string v1, "Series"
 
-    .line 167
+    .line 168
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
 
-    .line 168
+    .line 169
     invoke-static {v2, v3}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -550,7 +565,7 @@
 
     const-string v1, "Number"
 
-    .line 169
+    .line 170
     invoke-static {p0, v1}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -559,7 +574,7 @@
 
     const-string v4, "IssueCount"
 
-    .line 170
+    .line 171
     invoke-static {v2, v4}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -570,12 +585,12 @@
 
     const-string v4, "Volume"
 
-    .line 171
+    .line 172
     invoke-static {v2, v4}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 172
+    .line 173
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v6
@@ -598,7 +613,7 @@
 
     const-string v4, "lang"
 
-    .line 173
+    .line 174
     invoke-interface {v2, v4}, Lorg/w3c/dom/Element;->getAttribute(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
@@ -609,7 +624,7 @@
 
     if-lez v5, :cond_1
 
-    .line 174
+    .line 175
     invoke-interface {v2, v4}, Lorg/w3c/dom/Element;->getAttribute(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -626,12 +641,12 @@
     :goto_1
     const-string v5, "LanguageISO"
 
-    .line 173
+    .line 174
     invoke-static {v0, v5, v4}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
     const-string v4, "Format"
 
-    .line 175
+    .line 176
     invoke-static {v2, v4}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -640,7 +655,7 @@
 
     const-string v2, "Stories"
 
-    .line 176
+    .line 177
     invoke-static {p0, v2}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
@@ -651,7 +666,7 @@
 
     move-result-object v2
 
-    .line 177
+    .line 178
     invoke-interface {v2}, Ljava/util/List;->size()I
 
     move-result v4
@@ -678,7 +693,7 @@
 
     invoke-static {v0, v6, v4}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 178
+    .line 179
     :cond_2
     invoke-interface {v2}, Ljava/util/List;->size()I
 
@@ -709,7 +724,7 @@
     :cond_3
     const-string v2, "Arcs"
 
-    .line 179
+    .line 180
     invoke-static {p0, v2}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
@@ -720,14 +735,14 @@
 
     move-result-object v2
 
-    .line 180
+    .line 181
     invoke-interface {v2}, Ljava/util/List;->size()I
 
     move-result v4
 
     if-lez v4, :cond_4
 
-    .line 181
+    .line 182
     invoke-interface {v2, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v4
@@ -742,7 +757,7 @@
 
     invoke-static {v0, v4, v3}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 182
+    .line 183
     invoke-interface {v2, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v2
@@ -760,7 +775,7 @@
     :cond_4
     const-string v1, "Summary"
 
-    .line 184
+    .line 185
     invoke-static {p0, v1}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -769,7 +784,7 @@
 
     const-string v1, "Notes"
 
-    .line 185
+    .line 186
     invoke-static {p0, v1}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -778,12 +793,12 @@
 
     const-string v1, "CoverDate"
 
-    .line 186
+    .line 187
     invoke-static {p0, v1}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 187
+    .line 188
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -794,19 +809,19 @@
 
     const-string v2, "-"
 
-    .line 188
+    .line 189
     invoke-virtual {v1, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v1
 
     const-string v2, "Year"
 
-    .line 189
+    .line 190
     aget-object v3, v1, v5
 
     invoke-static {v0, v2, v3}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 190
+    .line 191
     array-length v2, v1
 
     if-le v2, v6, :cond_5
@@ -825,7 +840,7 @@
 
     invoke-static {v0, v3, v2}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 191
+    .line 192
     :cond_5
     array-length v2, v1
 
@@ -850,7 +865,7 @@
     :cond_6
     const-string v1, "Genres"
 
-    .line 193
+    .line 194
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v1
@@ -869,7 +884,7 @@
 
     const-string v1, "Characters"
 
-    .line 194
+    .line 195
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
@@ -888,7 +903,7 @@
 
     const-string v1, "Teams"
 
-    .line 195
+    .line 196
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
@@ -907,7 +922,7 @@
 
     const-string v1, "Locations"
 
-    .line 196
+    .line 197
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
@@ -926,7 +941,7 @@
 
     const-string v1, "Tags"
 
-    .line 197
+    .line 198
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v2
@@ -945,7 +960,7 @@
 
     const-string v1, "URLs"
 
-    .line 199
+    .line 200
     invoke-static {p0, v1}, Lcra/fork/Meta;->child(Lorg/w3c/dom/Element;Ljava/lang/String;)Lorg/w3c/dom/Element;
 
     move-result-object v1
@@ -976,7 +991,7 @@
 
     check-cast v3, Lorg/w3c/dom/Element;
 
-    .line 200
+    .line 201
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v4
@@ -1011,12 +1026,12 @@
     :cond_9
     const-string v1, "Web"
 
-    .line 202
+    .line 203
     invoke-static {v0, v1, v2}, Lcra/fork/Meta;->put(Ljava/lang/StringBuilder;Ljava/lang/String;Ljava/lang/String;)V
 
     const-string v1, "PageCount"
 
-    .line 203
+    .line 204
     invoke-static {p0, v1}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -1027,7 +1042,7 @@
 
     const-string v1, "AgeRating"
 
-    .line 204
+    .line 205
     invoke-static {p0, v1}, Lcra/fork/Meta;->text(Lorg/w3c/dom/Element;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
@@ -1038,7 +1053,7 @@
 
     const-string p0, "</ComicInfo>"
 
-    .line 205
+    .line 206
     invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -1207,7 +1222,7 @@
 .method private static parse(Ljava/lang/String;)I
     .locals 0
 
-    .line 210
+    .line 211
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
