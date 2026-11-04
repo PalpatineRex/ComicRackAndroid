@@ -1,6 +1,8 @@
 # Analysis of ComicRack for Android 1.80
 
-Static analysis only (nothing was installed or executed). Date: 2026-11-03.
+Static analysis of the **original** 1.80 app only (nothing was installed or executed). Date: 2026-11-03.
+Several parts listed here (AdMob, twitter4j, the license library) have since been removed from the
+fork; see [PLAN.md](PLAN.md) for the current state.
 Tools: `tools/analysis/*.py` (androguard 4.1.4, `pip install androguard loguru`).
 
 ## Inputs

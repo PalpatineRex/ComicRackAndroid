@@ -234,6 +234,17 @@ EDITS += [
              "Landroid/app/Activity;Ljava/lang/Runnable;)V")),
 ]
 
+# RAR5: the app's RAR reader (common/c/a) only knows RAR 1.x-4. Its public constructor first
+# passes the file through cra.fork.Rar5Fix.prepare, which converts a RAR5 archive into a RAR4
+# archive with stored entries (cached) and returns every other file unchanged.
+EDITS += [
+    ("smali/com/cyo/common/c/a.smali",
+     ".method public constructor <init>(Ljava/io/File;)V\n    .locals 1\n\n    .prologue\n    .line 101\n",
+     ".method public constructor <init>(Ljava/io/File;)V\n    .locals 1\n\n    .prologue\n"
+     + block("invoke-static {p1}, Lcra/fork/Rar5Fix;->prepare(Ljava/io/File;)Ljava/io/File;",
+             "move-result-object p1") + "\n\n    .line 101\n"),
+]
+
 # Banner manager common/view/a: the slots (a, b(I), constructor) are still used for layout
 # bookkeeping; everything that created, showed or released ad views does nothing now.
 STUBS = [

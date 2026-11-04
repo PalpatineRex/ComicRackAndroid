@@ -4,21 +4,23 @@ A maintained fork of the **ComicRack Android client** (cYo Soft, last release 1.
 [ComicRack Community Edition](https://github.com/maforget/ComicRackCE) (CE) on the desktop:
 version **2.9.186 = CE 0.9.186**, with the CE features that make sense on Android ported to it.
 
-**Status:** 2.9.186 builds and runs on Android 13. **No release has been published yet.**
-Details and progress: [docs/PLAN.md](docs/PLAN.md).
+**Status:** [2.9.186](../../releases/latest) is published (signed APK, about 850 KB). It runs on
+Android 13. Details, progress and known limits: [docs/PLAN.md](docs/PLAN.md).
 
 ## What changes compared to ComicRack 1.80
 
 - Installs and runs on current Android: no Google Play license check (the store listing is gone),
   no "built for an older version of Android" warning, full screen on tall phones.
-- No ads, no Twitter, no usage statistics: the opt-in popup is gone and nothing is ever sent.
+- No ads, no Twitter, no usage statistics: the opt-in popup is gone and nothing is ever sent. The
+  dead ad and Twitter code and unused resources are removed too (smaller app; the Snapshot menu is
+  Save / Share).
 - Ported from CE: natural sort (2 before 10) for pages and library lists, accents and articles
   (The, Le, La, Les, L', Der, Die, Das) ignored when sorting series, `__MACOSX` / `._` files
   ignored inside archives, HEIC/HEIF (Android 9+) and AVIF (Android 12+) pages.
 - Update check: once a day the app looks at this repository's releases and offers newer versions.
 - The in-app History tab lists every change.
 
-## Install (once a release is published)
+## Install
 
 1. Download the `.apk` of the latest [release](../../releases/latest) on your phone and open it.
    Android asks you to allow installs from your browser or file manager the first time.
@@ -34,8 +36,16 @@ its certificate SHA-256 fingerprint is
 
 ## With ComicRack Community Edition
 
-Wi-Fi sync with the CE desktop app uses the original protocol (unchanged in CE). It has **not been
-tested yet** with this fork; reports are welcome in the [issues](../../issues).
+Wi-Fi sync with the CE desktop app uses the original protocol (unchanged in CE). Tested with CE
+0.9.186 on Windows: CE finds the phone and pairs with it (Edit > Devices > Link device). A full
+transfer has **not been tested yet**; reports are welcome in the [issues](../../issues).
+
+## Known limits
+
+- **RAR5** CBR files are not supported (the app's RAR reader handles RAR 1.x-4). Convert them to CBZ.
+- No continuous / webtoon reading mode, no MetronInfo.xml / ComicBook.xml metadata (ComicInfo.xml
+  only), no JpegXL pages (CE 0.9.184).
+- Releases are checked on an Android 13 phone, not on every Android version.
 
 ## For maintainers
 
