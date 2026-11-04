@@ -9,7 +9,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.LruCache;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +88,11 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
                     if (e.getAction() == KeyEvent.ACTION_UP) act.finish();
                     return true;
                 }
+                int kc = e.getKeyCode();
+                if (kc == KeyEvent.KEYCODE_VOLUME_DOWN || kc == KeyEvent.KEYCODE_VOLUME_UP) {
+                    if (e.getAction() == KeyEvent.ACTION_DOWN) page(kc == KeyEvent.KEYCODE_VOLUME_DOWN ? 1 : -1);
+                    return true;
+                }
                 return super.dispatchKeyEvent(e);
             }
         };
@@ -106,7 +114,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
                 show(first);
             }
         });
-        FrameLayout root = new FrameLayout(host);
+        FrameLayout root = new Zoom(host);
         root.setBackgroundColor(Color.BLACK);
         root.addView(list, new FrameLayout.LayoutParams(-1, -1));
         label = new TextView(host);
@@ -201,6 +209,82 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
                 });
             }
         });
+    }
+
+    private void page(int dir) {
+        list.smoothScrollBy(dir * list.getHeight() * 8 / 10, 250);
+    }
+
+    /** Pinch / double-tap zoom of the whole strip, drag to pan when zoomed, tap top/bottom to page. */
+    private final class Zoom extends FrameLayout {
+        private float scale = 1f;
+        private float tx;
+        private boolean scaling;
+        private final ScaleGestureDetector pinch;
+        private final GestureDetector taps;
+
+        Zoom(Activity a) {
+            super(a);
+            pinch = new ScaleGestureDetector(a, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                @Override
+                public boolean onScale(ScaleGestureDetector d) {
+                    apply(scale * d.getScaleFactor());
+                    return true;
+                }
+            });
+            taps = new GestureDetector(a, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    apply(scale > 1.05f ? 1f : 2f);
+                    return true;
+                }
+
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    float y = e.getY() / Math.max(1, getHeight());
+                    if (y < 0.3f) page(-1);
+                    else if (y > 0.7f) page(1);
+                    return true;
+                }
+
+                @Override
+                public boolean onScroll(MotionEvent a1, MotionEvent a2, float dx, float dy) {
+                    if (scale > 1f && !scaling) {
+                        tx -= dx;
+                        apply(scale);
+                    }
+                    return false;
+                }
+            });
+        }
+
+        void apply(float s) {
+            scale = Math.max(1f, Math.min(4f, s));
+            float limit = getWidth() * (scale - 1f) / 2f;
+            tx = scale <= 1f ? 0f : Math.max(-limit, Math.min(limit, tx));
+            list.setPivotX(getWidth() / 2f);
+            list.setPivotY(getHeight() / 2f);
+            list.setScaleX(scale);
+            list.setScaleY(scale);
+            list.setTranslationX(tx);
+        }
+
+        @Override
+        public boolean dispatchTouchEvent(MotionEvent e) {
+            pinch.onTouchEvent(e);
+            scaling = pinch.isInProgress();
+            taps.onTouchEvent(e);
+            if (scaling) {
+                if (e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+                    MotionEvent c = MotionEvent.obtain(e);
+                    c.setAction(MotionEvent.ACTION_CANCEL);
+                    super.dispatchTouchEvent(c);
+                    c.recycle();
+                }
+                return true;
+            }
+            return super.dispatchTouchEvent(e);
+        }
     }
 
     private class Pages extends BaseAdapter {
