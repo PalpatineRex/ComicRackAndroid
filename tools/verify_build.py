@@ -93,11 +93,11 @@ def main() -> None:
     ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;",
             "Lcra/fork/Rar5Fix;", "Lcra/fork/Rar5Reader;", "Lcra/fork/Rar5Reader$Entry;",
             "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;",
-            "Lcra/fork/Meta;"}
+            "Lcra/fork/Cont;", "Lcra/fork/Meta;"}
     cont = {n for n in names if n.startswith("Lcra/fork/ContReader")}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
     checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*), no test class",
-                   len(names) == 1421 - 376 + len(ours) + len(cont) and ours <= names and "Lcra/fork/Cont;" in names and not test_classes))
+                   len(names) == 1421 - 376 + len(ours) + len(cont) and ours <= names and not test_classes))
     # Dead code (AdMob, twitter4j, the Twitter module) is gone and nothing names it any more:
     # every class a declaration or instruction refers to has its descriptor in the string table.
     dead = ("Lcom/a/a/", "Ltwitter4j/", "Lcom/cyo/common/b/a/",
