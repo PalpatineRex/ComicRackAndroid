@@ -27,6 +27,7 @@ public final class Cont {
             new ContReader(reader, h);
             return true;
         } catch (Throwable t) {
+            android.util.Log.w("cra.cont", "continuous mode unavailable, using the normal reader", t);
             return false;
         }
     }

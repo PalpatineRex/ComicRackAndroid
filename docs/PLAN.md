@@ -62,9 +62,14 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   multi-volume archives; the first open of a big RAR5 comic takes a while (full conversion); the
   library scan converts each RAR5 file it reads, so CBZ stays faster. Not run through the reader UI
   yet.
-- Continuous reading mode (webtoon / vertical strip): not done. The reader draws one page at a time
-  (Reading and display has no such option); a strip mode means rewriting its page view in smali,
-  too risky to do blind. Open for a contributor with source-level tooling.
+- Continuous reading mode (webtoon / vertical strip): written for 2.9.186.2 (setting "Continuous mode"
+  in Settings > Reading and display, off by default). When a comic has loaded, `cra.fork.Cont.open`
+  (hooked in `gn.onPostExecute`) replaces the reader's screen with a vertical list of pages
+  (`cra.fork.ContReader`, plain Java in `tools/java`); it reads pages through the app's own comic
+  source (reflection on the obfuscated classes), keeps a bitmap cache, shows "page / total", starts at
+  the saved page and saves the position and reading history on pause. Back leaves the reader. No zoom,
+  no tap zones, no page-turn animations in this mode (the strip is scrolled). Status: built, CI checks
+  pass; see the emulator test notes below.
 - MetronInfo.xml / ComicBook.xml metadata, Translator field: not done (the app only reads
   ComicInfo.xml; the parser is obfuscated and a second schema is a sizeable smali job).
 - JpegXL pages (CE 0.9.184): not possible, Android has no JXL decoder for this old target.
