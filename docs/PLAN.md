@@ -55,8 +55,17 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   CBR (signature `52 61 72 21 1A 07 01 00`) is rejected. Writing a RAR5 decoder in smali is a large
   job; for now, convert such files to CBZ. Real RAR5 samples for the on-device check: rarfile's
   `test/files/rar5-*.rar`.
-- Continuous reading mode (webtoon / vertical strip).
-- MetronInfo.xml / ComicBook.xml metadata, Translator field.
+- Continuous reading mode (webtoon / vertical strip): not done. The reader draws one page at a time
+  (Reading and display has no such option); a strip mode means rewriting its page view in smali,
+  too risky to do blind. Open for a contributor with source-level tooling.
+- MetronInfo.xml / ComicBook.xml metadata, Translator field: not done (the app only reads
+  ComicInfo.xml; the parser is obfuscated and a second schema is a sizeable smali job).
+- JpegXL pages (CE 0.9.184): not possible, Android has no JXL decoder for this old target.
+
+### CE wireless sync (tested 2026-11-04)
+- CE 0.9.186 (Windows, `-local`) finds the phone: Edit > Devices > Link device lists it and pairing
+  works. Not run to the end on purpose: the test phone holds a real library in `Comics/` and a
+  sync can add or remove files there. Test it with a spare device or a copy of the folder.
 
 ### Written, built and verified in CI (dry run), not yet run on a device
 - Update check (`tools/smali/cra/fork/Updater.smali`, `UpdatePrompt.smali`): at most once a day when
