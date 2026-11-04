@@ -56,6 +56,12 @@ def main() -> None:
                    and not any("CheckBox" in o for _, o in rating)
                    and b"CheckBox" not in AXMLPrinter(z.read("res/layout/comic_rating.xml")).get_xml()
                    and "tweet_rating" not in strings and "tweet_include_thumb" not in strings))
+    # A constructor that calls super() twice is rejected by ART's verifier (VerifyError at the first
+    # use, found on a device once): the rewritten listener constructors must call it exactly once.
+    for cls in ("cr", "ch"):
+        ctor = method_ins(dex, f"Lcom/cyo/comicrack/viewer/{cls};", "<init>") or []
+        checks.append((f"{cls}.<init> calls super() exactly once",
+                       sum(1 for n, o in ctor if n == "invoke-direct" and "Ljava/lang/Object;-><init>" in o) == 1))
     checks.append(("Help URL -> repo", f"{REPO}#readme" in strings))
     checks.append(("old documentation URL gone",
                    "http://comicrack.cyolito.com/documentation/comicrack-for-android" not in strings))
