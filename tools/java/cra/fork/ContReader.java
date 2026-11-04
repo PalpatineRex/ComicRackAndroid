@@ -94,6 +94,10 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
             public void onScrollStateChanged(AbsListView v, int s) {}
 
             public void onScroll(AbsListView v, int first, int visible, int total) {
+                View top = v.getChildAt(0);
+                // the page that fills most of the screen counts as the current one
+                if (top != null && top.getBottom() < v.getHeight() / 2 && first + 1 < total) first++;
+                if (first + visible >= total) first = total - 1; // end of the strip: last page
                 show(first);
             }
         });
