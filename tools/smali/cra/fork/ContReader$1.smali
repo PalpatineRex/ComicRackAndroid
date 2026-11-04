@@ -31,7 +31,7 @@
 .method constructor <init>(Lcra/fork/ContReader;I)V
     .locals 0
 
-    .line 67
+    .line 70
     iput-object p1, p0, Lcra/fork/ContReader$1;->this$0:Lcra/fork/ContReader;
 
     invoke-direct {p0, p2}, Landroid/util/LruCache;-><init>(I)V
@@ -44,7 +44,7 @@
 .method protected sizeOf(Ljava/lang/Integer;Landroid/graphics/Bitmap;)I
     .locals 0
 
-    .line 70
+    .line 73
     invoke-virtual {p2}, Landroid/graphics/Bitmap;->getByteCount()I
 
     move-result p1
@@ -55,7 +55,7 @@
 .method protected bridge synthetic sizeOf(Ljava/lang/Object;Ljava/lang/Object;)I
     .locals 0
 
-    .line 67
+    .line 70
     check-cast p1, Ljava/lang/Integer;
 
     check-cast p2, Landroid/graphics/Bitmap;

@@ -9,7 +9,8 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcra/fork/ContReader$Pages;
+        Lcra/fork/ContReader$Pages;,
+        Lcra/fork/ContReader$Zoom;
     }
 .end annotation
 
@@ -74,18 +75,18 @@
         }
     .end annotation
 
-    .line 55
+    .line 58
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     const/4 v0, -0x1
 
-    .line 47
+    .line 50
     iput v0, p0, Lcra/fork/ContReader;->shown:I
 
-    .line 48
+    .line 51
     iput v0, p0, Lcra/fork/ContReader;->pendingSel:I
 
-    .line 49
+    .line 52
     new-instance v1, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -96,29 +97,29 @@
 
     iput-object v1, p0, Lcra/fork/ContReader;->ui:Landroid/os/Handler;
 
-    .line 50
+    .line 53
     invoke-static {}, Ljava/util/concurrent/Executors;->newSingleThreadExecutor()Ljava/util/concurrent/ExecutorService;
 
     move-result-object v1
 
     iput-object v1, p0, Lcra/fork/ContReader;->io:Ljava/util/concurrent/ExecutorService;
 
-    .line 51
+    .line 54
     new-instance v1, Ljava/util/HashSet;
 
     invoke-direct {v1}, Ljava/util/HashSet;-><init>()V
 
     iput-object v1, p0, Lcra/fork/ContReader;->loading:Ljava/util/Set;
 
-    .line 56
+    .line 59
     iput-object p1, p0, Lcra/fork/ContReader;->host:Landroid/app/Activity;
 
-    .line 57
+    .line 60
     iput-object p2, p0, Lcra/fork/ContReader;->src:Ljava/lang/Object;
 
     const-string v1, "com.cyo.comicrack.a.b.h"
 
-    .line 58
+    .line 61
     invoke-static {v1}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
 
     move-result-object v1
@@ -129,7 +130,7 @@
 
     const-string v4, "a"
 
-    .line 59
+    .line 62
     invoke-virtual {v1, v4, v3}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
 
     move-result-object v3
@@ -146,7 +147,7 @@
 
     new-array v6, v5, [Ljava/lang/Class;
 
-    .line 60
+    .line 63
     sget-object v7, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
 
     aput-object v7, v6, v2
@@ -163,7 +164,7 @@
 
     iput-object v4, p0, Lcra/fork/ContReader;->pageBitmap:Ljava/lang/reflect/Method;
 
-    .line 61
+    .line 64
     invoke-virtual {v3}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v4
@@ -192,7 +193,7 @@
 
     if-lez v4, :cond_0
 
-    .line 63
+    .line 66
     invoke-virtual {p1}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v6
@@ -201,7 +202,7 @@
 
     move-result-object v6
 
-    .line 64
+    .line 67
     iget v7, v6, Landroid/util/DisplayMetrics;->widthPixels:I
 
     mul-int/lit8 v7, v7, 0x3
@@ -210,7 +211,7 @@
 
     iput v7, p0, Lcra/fork/ContReader;->rowMin:I
 
-    .line 65
+    .line 68
     iget v7, v6, Landroid/util/DisplayMetrics;->widthPixels:I
 
     mul-int/lit8 v7, v7, 0x2
@@ -223,7 +224,7 @@
 
     iput v5, p0, Lcra/fork/ContReader;->size:I
 
-    .line 66
+    .line 69
     invoke-static {}, Ljava/lang/Runtime;->getRuntime()Ljava/lang/Runtime;
 
     move-result-object v5
@@ -244,14 +245,14 @@
 
     long-to-int v5, v9
 
-    .line 67
+    .line 70
     new-instance v7, Lcra/fork/ContReader$1;
 
     invoke-direct {v7, p0, v5}, Lcra/fork/ContReader$1;-><init>(Lcra/fork/ContReader;I)V
 
     iput-object v7, p0, Lcra/fork/ContReader;->cache:Landroid/util/LruCache;
 
-    .line 75
+    .line 78
     :try_start_0
     invoke-virtual {v3}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
@@ -265,7 +266,7 @@
 
     sub-int/2addr v4, v8
 
-    .line 76
+    .line 79
     invoke-virtual {v5, v3}, Ljava/lang/reflect/Field;->getInt(Ljava/lang/Object;)I
 
     move-result v3
@@ -285,7 +286,7 @@
     :catchall_0
     const/4 v3, 0x0
 
-    .line 81
+    .line 84
     :goto_0
     new-instance v4, Lcra/fork/ContReader$2;
 
@@ -295,20 +296,20 @@
 
     const/4 v5, 0x0
 
-    .line 91
+    .line 99
     invoke-virtual {v4, v5}, Landroid/widget/ListView;->setDivider(Landroid/graphics/drawable/Drawable;)V
 
     const/high16 v7, -0x1000000
 
-    .line 92
+    .line 100
     invoke-virtual {v4, v7}, Landroid/widget/ListView;->setCacheColorHint(I)V
 
-    .line 94
+    .line 102
     new-instance v9, Landroid/view/View;
 
     invoke-direct {v9, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 95
+    .line 103
     new-instance v10, Landroid/widget/AbsListView$LayoutParams;
 
     iget v6, v6, Landroid/util/DisplayMetrics;->heightPixels:I
@@ -317,56 +318,56 @@
 
     invoke-virtual {v9, v10}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 96
+    .line 104
     invoke-virtual {v4, v9, v5, v2}, Landroid/widget/ListView;->addFooterView(Landroid/view/View;Ljava/lang/Object;Z)V
 
-    .line 97
+    .line 105
     new-instance v6, Lcra/fork/ContReader$Pages;
 
     invoke-direct {v6, p0, v5}, Lcra/fork/ContReader$Pages;-><init>(Lcra/fork/ContReader;Lcra/fork/ContReader$1;)V
 
     invoke-virtual {v4, v6}, Landroid/widget/ListView;->setAdapter(Landroid/widget/ListAdapter;)V
 
-    .line 98
+    .line 106
     new-instance v6, Lcra/fork/ContReader$3;
 
     invoke-direct {v6, p0}, Lcra/fork/ContReader$3;-><init>(Lcra/fork/ContReader;)V
 
     invoke-virtual {v4, v6}, Landroid/widget/ListView;->setOnScrollListener(Landroid/widget/AbsListView$OnScrollListener;)V
 
-    .line 109
-    new-instance v6, Landroid/widget/FrameLayout;
+    .line 117
+    new-instance v6, Lcra/fork/ContReader$Zoom;
 
-    invoke-direct {v6, p1}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
+    invoke-direct {v6, p0, p1}, Lcra/fork/ContReader$Zoom;-><init>(Lcra/fork/ContReader;Landroid/app/Activity;)V
 
-    .line 110
+    .line 118
     invoke-virtual {v6, v7}, Landroid/widget/FrameLayout;->setBackgroundColor(I)V
 
-    .line 111
+    .line 119
     new-instance v7, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v7, v0, v0}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v6, v4, v7}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 112
+    .line 120
     new-instance v7, Landroid/widget/TextView;
 
     invoke-direct {v7, p1}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
     iput-object v7, p0, Lcra/fork/ContReader;->label:Landroid/widget/TextView;
 
-    .line 113
+    .line 121
     invoke-virtual {v7, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 114
+    .line 122
     iget-object v0, p0, Lcra/fork/ContReader;->label:Landroid/widget/TextView;
 
     const/high16 v7, -0x67000000
 
     invoke-virtual {v0, v7}, Landroid/widget/TextView;->setBackgroundColor(I)V
 
-    .line 115
+    .line 123
     iget-object v0, p0, Lcra/fork/ContReader;->label:Landroid/widget/TextView;
 
     const/16 v7, 0x12
@@ -375,7 +376,7 @@
 
     invoke-virtual {v0, v7, v9, v7, v9}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 116
+    .line 124
     iget-object v0, p0, Lcra/fork/ContReader;->label:Landroid/widget/TextView;
 
     new-instance v7, Landroid/widget/FrameLayout$LayoutParams;
@@ -388,7 +389,7 @@
 
     invoke-virtual {v6, v0, v7}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 117
+    .line 125
     invoke-virtual {p1}, Landroid/app/Activity;->getWindow()Landroid/view/Window;
 
     move-result-object v0
@@ -397,16 +398,16 @@
 
     invoke-virtual {v0, v7}, Landroid/view/Window;->addFlags(I)V
 
-    .line 118
+    .line 126
     invoke-virtual {p1, v6}, Landroid/app/Activity;->setContentView(Landroid/view/View;)V
 
-    .line 119
+    .line 127
     invoke-virtual {v4}, Landroid/widget/ListView;->requestFocus()Z
 
     :try_start_1
     const-string v0, "com.cyo.comicrack.a.f"
 
-    .line 121
+    .line 129
     invoke-static {v0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
 
     move-result-object v0
@@ -429,7 +430,7 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 125
+    .line 133
     :catchall_1
     new-instance p2, Ljava/lang/StringBuilder;
 
@@ -455,18 +456,18 @@
 
     invoke-static {v0, p2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 126
+    .line 134
     iput v3, p0, Lcra/fork/ContReader;->pendingSel:I
 
-    .line 127
+    .line 135
     iget-object p2, p0, Lcra/fork/ContReader;->list:Landroid/widget/ListView;
 
     invoke-virtual {p2, v3, v2}, Landroid/widget/ListView;->setSelectionFromTop(II)V
 
-    .line 128
+    .line 136
     invoke-direct {p0, v3}, Lcra/fork/ContReader;->show(I)V
 
-    .line 129
+    .line 137
     invoke-virtual {p1}, Landroid/app/Activity;->getApplication()Landroid/app/Application;
 
     move-result-object p1
@@ -475,7 +476,7 @@
 
     return-void
 
-    .line 62
+    .line 65
     :cond_0
     new-instance p1, Ljava/lang/IllegalStateException;
 
@@ -486,150 +487,159 @@
     throw p1
 .end method
 
-.method static synthetic access$100(Lcra/fork/ContReader;)I
+.method static synthetic access$000(Lcra/fork/ContReader;I)V
     .locals 0
 
-    .line 37
-    iget p0, p0, Lcra/fork/ContReader;->pages:I
-
-    return p0
-.end method
-
-.method static synthetic access$1000(Lcra/fork/ContReader;)I
-    .locals 0
-
-    .line 37
-    iget p0, p0, Lcra/fork/ContReader;->pendingSel:I
-
-    return p0
-.end method
-
-.method static synthetic access$1002(Lcra/fork/ContReader;I)I
-    .locals 0
-
-    .line 37
-    iput p1, p0, Lcra/fork/ContReader;->pendingSel:I
-
-    return p1
-.end method
-
-.method static synthetic access$1100(Lcra/fork/ContReader;)Landroid/os/Handler;
-    .locals 0
-
-    .line 37
-    iget-object p0, p0, Lcra/fork/ContReader;->ui:Landroid/os/Handler;
-
-    return-object p0
-.end method
-
-.method static synthetic access$1200(Lcra/fork/ContReader;)Landroid/app/Activity;
-    .locals 0
-
-    .line 37
-    iget-object p0, p0, Lcra/fork/ContReader;->host:Landroid/app/Activity;
-
-    return-object p0
-.end method
-
-.method static synthetic access$1300(Lcra/fork/ContReader;)I
-    .locals 0
-
-    .line 37
-    iget p0, p0, Lcra/fork/ContReader;->rowMin:I
-
-    return p0
-.end method
-
-.method static synthetic access$1400(Lcra/fork/ContReader;I)V
-    .locals 0
-
-    .line 37
-    invoke-direct {p0, p1}, Lcra/fork/ContReader;->load(I)V
+    .line 40
+    invoke-direct {p0, p1}, Lcra/fork/ContReader;->page(I)V
 
     return-void
 .end method
 
-.method static synthetic access$200(Lcra/fork/ContReader;I)V
+.method static synthetic access$1000(Lcra/fork/ContReader;)Landroid/widget/ListView;
     .locals 0
 
-    .line 37
-    invoke-direct {p0, p1}, Lcra/fork/ContReader;->show(I)V
-
-    return-void
-.end method
-
-.method static synthetic access$300(Lcra/fork/ContReader;)Ljava/lang/Object;
-    .locals 0
-
-    .line 37
-    iget-object p0, p0, Lcra/fork/ContReader;->src:Ljava/lang/Object;
-
-    return-object p0
-.end method
-
-.method static synthetic access$400(Lcra/fork/ContReader;)I
-    .locals 0
-
-    .line 37
-    iget p0, p0, Lcra/fork/ContReader;->size:I
-
-    return p0
-.end method
-
-.method static synthetic access$500(Lcra/fork/ContReader;)Ljava/lang/reflect/Method;
-    .locals 0
-
-    .line 37
-    iget-object p0, p0, Lcra/fork/ContReader;->pageBitmap:Ljava/lang/reflect/Method;
-
-    return-object p0
-.end method
-
-.method static synthetic access$600(Lcra/fork/ContReader;)Ljava/util/Set;
-    .locals 0
-
-    .line 37
-    iget-object p0, p0, Lcra/fork/ContReader;->loading:Ljava/util/Set;
-
-    return-object p0
-.end method
-
-.method static synthetic access$700(Lcra/fork/ContReader;)Landroid/util/LruCache;
-    .locals 0
-
-    .line 37
-    iget-object p0, p0, Lcra/fork/ContReader;->cache:Landroid/util/LruCache;
-
-    return-object p0
-.end method
-
-.method static synthetic access$800(Lcra/fork/ContReader;)Z
-    .locals 0
-
-    .line 37
-    iget-boolean p0, p0, Lcra/fork/ContReader;->dead:Z
-
-    return p0
-.end method
-
-.method static synthetic access$900(Lcra/fork/ContReader;)Landroid/widget/ListView;
-    .locals 0
-
-    .line 37
+    .line 40
     iget-object p0, p0, Lcra/fork/ContReader;->list:Landroid/widget/ListView;
 
     return-object p0
 .end method
 
+.method static synthetic access$1100(Lcra/fork/ContReader;)I
+    .locals 0
+
+    .line 40
+    iget p0, p0, Lcra/fork/ContReader;->pendingSel:I
+
+    return p0
+.end method
+
+.method static synthetic access$1102(Lcra/fork/ContReader;I)I
+    .locals 0
+
+    .line 40
+    iput p1, p0, Lcra/fork/ContReader;->pendingSel:I
+
+    return p1
+.end method
+
+.method static synthetic access$1200(Lcra/fork/ContReader;)Landroid/os/Handler;
+    .locals 0
+
+    .line 40
+    iget-object p0, p0, Lcra/fork/ContReader;->ui:Landroid/os/Handler;
+
+    return-object p0
+.end method
+
+.method static synthetic access$1600(Lcra/fork/ContReader;)Landroid/app/Activity;
+    .locals 0
+
+    .line 40
+    iget-object p0, p0, Lcra/fork/ContReader;->host:Landroid/app/Activity;
+
+    return-object p0
+.end method
+
+.method static synthetic access$1700(Lcra/fork/ContReader;)I
+    .locals 0
+
+    .line 40
+    iget p0, p0, Lcra/fork/ContReader;->rowMin:I
+
+    return p0
+.end method
+
+.method static synthetic access$1800(Lcra/fork/ContReader;I)V
+    .locals 0
+
+    .line 40
+    invoke-direct {p0, p1}, Lcra/fork/ContReader;->load(I)V
+
+    return-void
+.end method
+
+.method static synthetic access$200(Lcra/fork/ContReader;)I
+    .locals 0
+
+    .line 40
+    iget p0, p0, Lcra/fork/ContReader;->pages:I
+
+    return p0
+.end method
+
+.method static synthetic access$300(Lcra/fork/ContReader;I)V
+    .locals 0
+
+    .line 40
+    invoke-direct {p0, p1}, Lcra/fork/ContReader;->show(I)V
+
+    return-void
+.end method
+
+.method static synthetic access$400(Lcra/fork/ContReader;)Ljava/lang/Object;
+    .locals 0
+
+    .line 40
+    iget-object p0, p0, Lcra/fork/ContReader;->src:Ljava/lang/Object;
+
+    return-object p0
+.end method
+
+.method static synthetic access$500(Lcra/fork/ContReader;)I
+    .locals 0
+
+    .line 40
+    iget p0, p0, Lcra/fork/ContReader;->size:I
+
+    return p0
+.end method
+
+.method static synthetic access$600(Lcra/fork/ContReader;)Ljava/lang/reflect/Method;
+    .locals 0
+
+    .line 40
+    iget-object p0, p0, Lcra/fork/ContReader;->pageBitmap:Ljava/lang/reflect/Method;
+
+    return-object p0
+.end method
+
+.method static synthetic access$700(Lcra/fork/ContReader;)Ljava/util/Set;
+    .locals 0
+
+    .line 40
+    iget-object p0, p0, Lcra/fork/ContReader;->loading:Ljava/util/Set;
+
+    return-object p0
+.end method
+
+.method static synthetic access$800(Lcra/fork/ContReader;)Landroid/util/LruCache;
+    .locals 0
+
+    .line 40
+    iget-object p0, p0, Lcra/fork/ContReader;->cache:Landroid/util/LruCache;
+
+    return-object p0
+.end method
+
+.method static synthetic access$900(Lcra/fork/ContReader;)Z
+    .locals 0
+
+    .line 40
+    iget-boolean p0, p0, Lcra/fork/ContReader;->dead:Z
+
+    return p0
+.end method
+
 .method private load(I)V
     .locals 3
 
-    .line 175
+    .line 183
     iget-object v0, p0, Lcra/fork/ContReader;->loading:Ljava/util/Set;
 
     monitor-enter v0
 
-    .line 176
+    .line 184
     :try_start_0
     iget-object v1, p0, Lcra/fork/ContReader;->loading:Ljava/util/Set;
 
@@ -647,13 +657,13 @@
 
     return-void
 
-    .line 177
+    .line 185
     :cond_0
     monitor-exit v0
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 178
+    .line 186
     iget-object v0, p0, Lcra/fork/ContReader;->io:Ljava/util/concurrent/ExecutorService;
 
     new-instance v1, Lcra/fork/ContReader$4;
@@ -667,7 +677,7 @@
     :catchall_0
     move-exception p1
 
-    .line 177
+    .line 185
     :try_start_1
     monitor-exit v0
     :try_end_1
@@ -676,12 +686,35 @@
     throw p1
 .end method
 
+.method private page(I)V
+    .locals 2
+
+    .line 215
+    iget-object v0, p0, Lcra/fork/ContReader;->list:Landroid/widget/ListView;
+
+    invoke-virtual {v0}, Landroid/widget/ListView;->getHeight()I
+
+    move-result v1
+
+    mul-int p1, p1, v1
+
+    mul-int/lit8 p1, p1, 0x8
+
+    div-int/lit8 p1, p1, 0xa
+
+    const/16 v1, 0xfa
+
+    invoke-virtual {v0, p1, v1}, Landroid/widget/ListView;->smoothScrollBy(II)V
+
+    return-void
+.end method
+
 .method private save()V
     .locals 8
 
     const-string v0, "save: page "
 
-    .line 140
+    .line 148
     :try_start_0
     iget v1, p0, Lcra/fork/ContReader;->pages:I
 
@@ -703,7 +736,7 @@
 
     const-string v4, "cra.cont"
 
-    .line 141
+    .line 149
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
@@ -716,7 +749,7 @@
 
     invoke-static {v4, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 142
+    .line 150
     iget-object v0, p0, Lcra/fork/ContReader;->info:Ljava/lang/Object;
 
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
@@ -727,7 +760,7 @@
 
     new-array v5, v2, [Ljava/lang/Class;
 
-    .line 143
+    .line 151
     sget-object v6, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
 
     aput-object v6, v5, v3
@@ -752,7 +785,7 @@
 
     new-array v5, v3, [Ljava/lang/Class;
 
-    .line 144
+    .line 152
     invoke-virtual {v0, v4, v5}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
 
     move-result-object v4
@@ -777,7 +810,7 @@
 
     new-array v5, v2, [Ljava/lang/Class;
 
-    .line 145
+    .line 153
     sget-object v6, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
 
     aput-object v6, v5, v3
@@ -801,14 +834,14 @@
     :cond_0
     const-string v0, "com.cyo.comicrack.a.b.h"
 
-    .line 146
+    .line 154
     invoke-static {v0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
 
     move-result-object v0
 
     const-string v1, "com.cyo.comicrack.a.f"
 
-    .line 147
+    .line 155
     invoke-static {v1}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
 
     move-result-object v1
@@ -842,7 +875,7 @@
 .method private show(I)V
     .locals 2
 
-    .line 133
+    .line 141
     iget-object v0, p0, Lcra/fork/ContReader;->label:Landroid/widget/TextView;
 
     if-eqz v0, :cond_1
@@ -857,11 +890,11 @@
 
     goto :goto_0
 
-    .line 134
+    .line 142
     :cond_0
     iput p1, p0, Lcra/fork/ContReader;->shown:I
 
-    .line 135
+    .line 143
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -900,7 +933,7 @@
 .method public onActivityDestroyed(Landroid/app/Activity;)V
     .locals 1
 
-    .line 158
+    .line 166
     iget-object v0, p0, Lcra/fork/ContReader;->host:Landroid/app/Activity;
 
     if-eq p1, v0, :cond_0
@@ -910,15 +943,15 @@
     :cond_0
     const/4 p1, 0x1
 
-    .line 159
+    .line 167
     iput-boolean p1, p0, Lcra/fork/ContReader;->dead:Z
 
-    .line 160
+    .line 168
     iget-object p1, p0, Lcra/fork/ContReader;->io:Ljava/util/concurrent/ExecutorService;
 
     invoke-interface {p1}, Ljava/util/concurrent/ExecutorService;->shutdownNow()Ljava/util/List;
 
-    .line 161
+    .line 169
     iget-object p1, p0, Lcra/fork/ContReader;->host:Landroid/app/Activity;
 
     invoke-virtual {p1}, Landroid/app/Activity;->getApplication()Landroid/app/Application;
@@ -933,7 +966,7 @@
 .method public onActivityPaused(Landroid/app/Activity;)V
     .locals 1
 
-    .line 154
+    .line 162
     iget-object v0, p0, Lcra/fork/ContReader;->host:Landroid/app/Activity;
 
     if-ne p1, v0, :cond_0

@@ -32,7 +32,7 @@
         }
     .end annotation
 
-    .line 191
+    .line 199
     iput-object p1, p0, Lcra/fork/ContReader$4$1;->this$1:Lcra/fork/ContReader$4;
 
     iput-object p2, p0, Lcra/fork/ContReader$4$1;->val$res:Landroid/graphics/Bitmap;
@@ -47,12 +47,12 @@
 .method public run()V
     .locals 3
 
-    .line 193
+    .line 201
     iget-object v0, p0, Lcra/fork/ContReader$4$1;->this$1:Lcra/fork/ContReader$4;
 
     iget-object v0, v0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v0}, Lcra/fork/ContReader;->access$800(Lcra/fork/ContReader;)Z
+    invoke-static {v0}, Lcra/fork/ContReader;->access$900(Lcra/fork/ContReader;)Z
 
     move-result v0
 
@@ -64,24 +64,24 @@
 
     goto :goto_0
 
-    .line 194
+    .line 202
     :cond_0
     iget-object v0, p0, Lcra/fork/ContReader$4$1;->this$1:Lcra/fork/ContReader$4;
 
     iget-object v0, v0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v0}, Lcra/fork/ContReader;->access$900(Lcra/fork/ContReader;)Landroid/widget/ListView;
+    invoke-static {v0}, Lcra/fork/ContReader;->access$1000(Lcra/fork/ContReader;)Landroid/widget/ListView;
 
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/widget/ListView;->invalidateViews()V
 
-    .line 195
+    .line 203
     iget-object v0, p0, Lcra/fork/ContReader$4$1;->this$1:Lcra/fork/ContReader$4;
 
     iget-object v0, v0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v0}, Lcra/fork/ContReader;->access$1000(Lcra/fork/ContReader;)I
+    invoke-static {v0}, Lcra/fork/ContReader;->access$1100(Lcra/fork/ContReader;)I
 
     move-result v0
 
@@ -95,18 +95,18 @@
 
     iget-object v1, v1, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v1}, Lcra/fork/ContReader;->access$1000(Lcra/fork/ContReader;)I
+    invoke-static {v1}, Lcra/fork/ContReader;->access$1100(Lcra/fork/ContReader;)I
 
     move-result v1
 
     if-lt v0, v1, :cond_1
 
-    .line 197
+    .line 205
     iget-object v0, p0, Lcra/fork/ContReader$4$1;->this$1:Lcra/fork/ContReader$4;
 
     iget-object v0, v0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v0}, Lcra/fork/ContReader;->access$900(Lcra/fork/ContReader;)Landroid/widget/ListView;
+    invoke-static {v0}, Lcra/fork/ContReader;->access$1000(Lcra/fork/ContReader;)Landroid/widget/ListView;
 
     move-result-object v0
 
@@ -114,7 +114,7 @@
 
     iget-object v1, v1, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v1}, Lcra/fork/ContReader;->access$1000(Lcra/fork/ContReader;)I
+    invoke-static {v1}, Lcra/fork/ContReader;->access$1100(Lcra/fork/ContReader;)I
 
     move-result v1
 
@@ -122,14 +122,14 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/ListView;->setSelectionFromTop(II)V
 
-    .line 198
+    .line 206
     iget-object v0, p0, Lcra/fork/ContReader$4$1;->this$1:Lcra/fork/ContReader$4;
 
     iget-object v0, v0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
     const/4 v1, -0x1
 
-    invoke-static {v0, v1}, Lcra/fork/ContReader;->access$1002(Lcra/fork/ContReader;I)I
+    invoke-static {v0, v1}, Lcra/fork/ContReader;->access$1102(Lcra/fork/ContReader;I)I
 
     :cond_1
     :goto_0

@@ -25,7 +25,7 @@
 .method constructor <init>(Lcra/fork/ContReader;)V
     .locals 0
 
-    .line 98
+    .line 106
     iput-object p1, p0, Lcra/fork/ContReader$3;->this$0:Lcra/fork/ContReader;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,14 +40,14 @@
 
     const/4 p3, 0x0
 
-    .line 102
+    .line 110
     invoke-virtual {p1, p3}, Landroid/widget/AbsListView;->getChildAt(I)Landroid/view/View;
 
     move-result-object p3
 
     if-eqz p3, :cond_0
 
-    .line 104
+    .line 112
     invoke-virtual {p3}, Landroid/view/View;->getBottom()I
 
     move-result p3
@@ -66,11 +66,11 @@
 
     move p2, p1
 
-    .line 105
+    .line 113
     :cond_0
     iget-object p1, p0, Lcra/fork/ContReader$3;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {p1}, Lcra/fork/ContReader;->access$100(Lcra/fork/ContReader;)I
+    invoke-static {p1}, Lcra/fork/ContReader;->access$200(Lcra/fork/ContReader;)I
 
     move-result p1
 
@@ -80,17 +80,17 @@
 
     iget-object p1, p0, Lcra/fork/ContReader$3;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {p1}, Lcra/fork/ContReader;->access$100(Lcra/fork/ContReader;)I
+    invoke-static {p1}, Lcra/fork/ContReader;->access$200(Lcra/fork/ContReader;)I
 
     move-result p1
 
     add-int/lit8 p2, p1, -0x1
 
-    .line 106
+    .line 114
     :cond_1
     iget-object p1, p0, Lcra/fork/ContReader$3;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {p1, p2}, Lcra/fork/ContReader;->access$200(Lcra/fork/ContReader;I)V
+    invoke-static {p1, p2}, Lcra/fork/ContReader;->access$300(Lcra/fork/ContReader;I)V
 
     return-void
 .end method

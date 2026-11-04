@@ -32,7 +32,7 @@
         }
     .end annotation
 
-    .line 178
+    .line 186
     iput-object p1, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
     iput p2, p0, Lcra/fork/ContReader$4;->val$i:I
@@ -47,17 +47,17 @@
 .method public run()V
     .locals 5
 
-    .line 182
+    .line 190
     :try_start_0
     iget-object v0, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v0}, Lcra/fork/ContReader;->access$500(Lcra/fork/ContReader;)Ljava/lang/reflect/Method;
+    invoke-static {v0}, Lcra/fork/ContReader;->access$600(Lcra/fork/ContReader;)Ljava/lang/reflect/Method;
 
     move-result-object v0
 
     iget-object v1, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v1}, Lcra/fork/ContReader;->access$300(Lcra/fork/ContReader;)Ljava/lang/Object;
+    invoke-static {v1}, Lcra/fork/ContReader;->access$400(Lcra/fork/ContReader;)Ljava/lang/Object;
 
     move-result-object v1
 
@@ -77,7 +77,7 @@
 
     iget-object v3, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v3}, Lcra/fork/ContReader;->access$400(Lcra/fork/ContReader;)I
+    invoke-static {v3}, Lcra/fork/ContReader;->access$500(Lcra/fork/ContReader;)I
 
     move-result v3
 
@@ -102,21 +102,21 @@
     :catchall_0
     const/4 v0, 0x0
 
-    .line 187
+    .line 195
     :goto_0
     iget-object v1, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v1}, Lcra/fork/ContReader;->access$600(Lcra/fork/ContReader;)Ljava/util/Set;
+    invoke-static {v1}, Lcra/fork/ContReader;->access$700(Lcra/fork/ContReader;)Ljava/util/Set;
 
     move-result-object v1
 
     monitor-enter v1
 
-    .line 188
+    .line 196
     :try_start_1
     iget-object v2, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v2}, Lcra/fork/ContReader;->access$600(Lcra/fork/ContReader;)Ljava/util/Set;
+    invoke-static {v2}, Lcra/fork/ContReader;->access$700(Lcra/fork/ContReader;)Ljava/util/Set;
 
     move-result-object v2
 
@@ -128,17 +128,17 @@
 
     invoke-interface {v2, v3}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
 
-    .line 189
+    .line 197
     monitor-exit v1
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
     if-eqz v0, :cond_0
 
-    .line 190
+    .line 198
     iget-object v1, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v1}, Lcra/fork/ContReader;->access$700(Lcra/fork/ContReader;)Landroid/util/LruCache;
+    invoke-static {v1}, Lcra/fork/ContReader;->access$800(Lcra/fork/ContReader;)Landroid/util/LruCache;
 
     move-result-object v1
 
@@ -150,11 +150,11 @@
 
     invoke-virtual {v1, v2, v0}, Landroid/util/LruCache;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 191
+    .line 199
     :cond_0
     iget-object v1, p0, Lcra/fork/ContReader$4;->this$0:Lcra/fork/ContReader;
 
-    invoke-static {v1}, Lcra/fork/ContReader;->access$1100(Lcra/fork/ContReader;)Landroid/os/Handler;
+    invoke-static {v1}, Lcra/fork/ContReader;->access$1200(Lcra/fork/ContReader;)Landroid/os/Handler;
 
     move-result-object v1
 
@@ -169,7 +169,7 @@
     :catchall_1
     move-exception v0
 
-    .line 189
+    .line 197
     :try_start_2
     monitor-exit v1
     :try_end_2
