@@ -94,10 +94,10 @@ def main() -> None:
             "Lcra/fork/Rar5Fix;", "Lcra/fork/Rar5Reader;", "Lcra/fork/Rar5Reader$Entry;",
             "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;",
             "Lcra/fork/Cont;", "Lcra/fork/Meta;", "Lcra/fork/Img;",
-            "Lcom/awxkee/jxlcoder/JxlCoder;"}
+            "Lcom/awxkee/jxlcoder/JxlCoder;", "Lcra/fork/Tr;", "Lcra/fork/TrSet;"}
     cont = {n for n in names if n.startswith("Lcra/fork/ContReader")}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
-    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*, Meta, Img, JxlCoder), no test class",
+    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*, Meta, Img, JxlCoder, Tr, TrSet), no test class",
                    len(names) == 1421 - 376 + len(ours) + len(cont) and ours <= names and not test_classes))
     # Dead code (AdMob, twitter4j, the Twitter module) is gone and nothing names it any more:
     # every class a declaration or instruction refers to has its descriptor in the string table.
@@ -162,6 +162,13 @@ def main() -> None:
                    {"__macosx/", "/._", "._"} <= filter_strings))
     checks.append(("CE: HEIF/AVIF pages accepted (.heic .heif .avif)",
                    {".heic", ".heif", ".avif"} <= filter_strings))
+    ci = next((c for c in dex.get_classes() if c.get_name() == "Lcom/cyo/comicrack/a/a/b;"), None)
+    checks.append(("CE: Translator field (ComicInfo field, parser element, database v5, details row)",
+                   ci is not None and any(f.get_name() == "cra_translator" for f in ci.get_fields())
+                   and "ALTER TABLE books ADD COLUMN Translator TEXT;" in strings
+                   and any("Lcra/fork/Tr;->col(" in o for c in dex.get_classes()
+                           if c.get_name() == "Lcom/cyo/comicrack/a/a;" for m in c.get_methods()
+                           if m.get_code() for i in m.get_instructions() for o in [i.get_output()])))
     checks.append(("CE: JPEG XL pages accepted (.jxl)", ".jxl" in filter_strings))
     for cls, want in (("Lcom/cyo/comicrack/a/b/k;", 2), ("Lcom/cyo/comicrack/a/b/o;", 4)):
         calls = [o for c in dex.get_classes() if c.get_name() == cls for m in c.get_methods()

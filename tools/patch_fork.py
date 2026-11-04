@@ -73,6 +73,7 @@ FORK_CHANGES = {
         "From CE: JPEG XL pages (.jxl), decoded by the bundled jxl-coder / libjxl library (the app grows by about 14 MB)",
         "From CE: RAR5 comics (.cbr) open (converted once into the app's cache, then read as before)",
         "From CE: ComicBook.xml and MetronInfo.xml metadata are read, as well as ComicInfo.xml",
+        "From CE: Translator field (ComicInfo, ComicBook, MetronInfo), shown in the comic details; the library database is upgraded to add it",
         "From CE: Continuous mode (Settings > Reading and display): pages as one vertical strip, position saved; tap the top or bottom of the screen or use the volume keys to move a page, double-tap and pinch to zoom",
         'Targets Android 7.1: no more "built for an older version of Android" warning',
         "Uses the full screen on tall phones (no more empty band at the bottom)",

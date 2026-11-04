@@ -162,6 +162,7 @@ public final class Meta {
         put(sb, "Inker", credits(m, "Inker", "Ink Assists"));
         put(sb, "Colorist", credits(m, "~Color"));
         put(sb, "Editor", credits(m, "~Editor"));
+        put(sb, "Translator", credits(m, "~Translator"));
         put(sb, "Letterer", credits(m, "Letterer"));
         put(sb, "CoverArtist", credits(m, "Cover"));
         Element series = child(m, "Series");

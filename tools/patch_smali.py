@@ -143,6 +143,66 @@ EDITS = [
            "invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z") +
      "\n\n    :cra_jxl_skip\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;"),
 
+    # Translator field (CE 0.9.18x): ComicInfo field + parser element + library database column
+    # (database version 4 -> 5) + row in the comic details screen.
+    ("smali/com/cyo/comicrack/a/a/b.smali",
+     ".field public m:Z\n",
+     ".field public m:Z\n\n.field public cra_translator:Ljava/lang/String;\n"),
+    ("smali/com/cyo/comicrack/a/a/c.smali",
+     "    .line 659\n    const-string v0, \"Penciller\"",
+     "    const-string v0, \"Translator\"\n\n    new-instance v1, Lcra/fork/TrSet;\n\n"
+     "    invoke-direct {v1}, Lcra/fork/TrSet;-><init>()V\n\n"
+     "    invoke-interface {p1, v0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n\n"
+     "    .line 659\n    const-string v0, \"Penciller\""),
+    ("smali/com/cyo/comicrack/a/a.smali",
+     "    iput-object v1, v0, Lcom/cyo/comicrack/a/a/b;->M:Ljava/lang/String;\n",
+     "    iput-object v1, v0, Lcom/cyo/comicrack/a/a/b;->M:Ljava/lang/String;\n\n"
+     "    invoke-static {p0}, Lcra/fork/Tr;->col(Landroid/database/Cursor;)Ljava/lang/String;\n\n"
+     "    move-result-object v1\n\n"
+     "    iput-object v1, v0, Lcom/cyo/comicrack/a/a/b;->cra_translator:Ljava/lang/String;\n"),
+    ("smali/com/cyo/comicrack/a/a.smali",
+     "    iget-object v5, p1, Lcom/cyo/comicrack/a/a/b;->M:Ljava/lang/String;\n\n"
+     "    invoke-virtual {v3, v4, v5}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V\n",
+     "    iget-object v5, p1, Lcom/cyo/comicrack/a/a/b;->M:Ljava/lang/String;\n\n"
+     "    invoke-virtual {v3, v4, v5}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V\n\n"
+     "    const-string v4, \"Translator\"\n\n"
+     "    iget-object v5, p1, Lcom/cyo/comicrack/a/a/b;->cra_translator:Ljava/lang/String;\n\n"
+     "    invoke-virtual {v3, v4, v5}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V\n"),
+    ("smali/com/cyo/comicrack/a/b.smali",
+     "    const/4 v2, 0x4\n\n    invoke-direct {p0, p1, v0, v1, v2}, Landroid/database/sqlite/SQLiteOpenHelper;",
+     "    const/4 v2, 0x5\n\n    invoke-direct {p0, p1, v0, v1, v2}, Landroid/database/sqlite/SQLiteOpenHelper;"),
+    ("smali/com/cyo/comicrack/a/b.smali",
+     "    .line 118\n    iget-object v0, p0, Lcom/cyo/comicrack/a/b;->a:Ljava/lang/String;\n\n"
+     "    invoke-static {p1, v0}, Lcom/cyo/comicrack/a/b;->a(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)V\n",
+     "    .line 118\n    iget-object v0, p0, Lcom/cyo/comicrack/a/b;->a:Ljava/lang/String;\n\n"
+     "    invoke-static {p1, v0}, Lcom/cyo/comicrack/a/b;->a(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)V\n\n"
+     "    const-string v0, \"ALTER TABLE books ADD COLUMN Translator TEXT;\"\n\n"
+     "    invoke-static {p1, v0}, Lcom/cyo/comicrack/a/b;->a(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)V\n"),
+    ("smali/com/cyo/comicrack/a/b.smali",
+     "    :pswitch_2\n    iget-object v0, p0, Lcom/cyo/comicrack/a/b;->d:Ljava/lang/String;\n\n"
+     "    invoke-static {p1, v0}, Lcom/cyo/comicrack/a/b;->a(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)V\n\n"
+     "    goto :goto_0\n\n    .line 124\n    :pswitch_data_0\n    .packed-switch 0x1\n"
+     "        :pswitch_0\n        :pswitch_1\n        :pswitch_2\n    .end packed-switch",
+     "    :pswitch_2\n    iget-object v0, p0, Lcom/cyo/comicrack/a/b;->d:Ljava/lang/String;\n\n"
+     "    invoke-static {p1, v0}, Lcom/cyo/comicrack/a/b;->a(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)V\n\n"
+     "    :pswitch_3\n    const-string v0, \"ALTER TABLE books ADD COLUMN Translator TEXT;\"\n\n"
+     "    invoke-static {p1, v0}, Lcom/cyo/comicrack/a/b;->a(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)V\n\n"
+     "    goto :goto_0\n\n    .line 124\n    :pswitch_data_0\n    .packed-switch 0x1\n"
+     "        :pswitch_0\n        :pswitch_1\n        :pswitch_2\n        :pswitch_3\n    .end packed-switch"),
+    ("smali/com/cyo/comicrack/viewer/u.smali",
+     "    const-string v3, \"Writer\"\n\n    invoke-direct {p0, v1, v0, v2, v3}, Lcom/cyo/comicrack/viewer/u;->a(Landroid/widget/TableLayout;ILjava/lang/String;Ljava/lang/String;)V\n",
+     "    const-string v3, \"Writer\"\n\n    invoke-direct {p0, v1, v0, v2, v3}, Lcom/cyo/comicrack/viewer/u;->a(Landroid/widget/TableLayout;ILjava/lang/String;Ljava/lang/String;)V\n\n"
+     "    invoke-direct {p0, v1, p1}, Lcom/cyo/comicrack/viewer/u;->cra_translator(Landroid/widget/TableLayout;Lcom/cyo/comicrack/a/a/b;)V\n"),
+    ("smali/com/cyo/comicrack/viewer/u.smali",
+     ".method private a(Landroid/widget/TableLayout;ILjava/lang/String;Ljava/lang/String;)V\n    .locals 7\n",
+     ".method private cra_translator(Landroid/widget/TableLayout;Lcom/cyo/comicrack/a/a/b;)V\n    .locals 7\n\n"
+     "    move-object v0, p0\n\n    move-object v1, p1\n\n    const-string v2, \"Translator\"\n\n"
+     "    iget-object v3, p2, Lcom/cyo/comicrack/a/a/b;->cra_translator:Ljava/lang/String;\n\n"
+     "    const/4 v4, 0x0\n\n    const/4 v5, 0x0\n\n    const/4 v6, 0x0\n\n"
+     "    invoke-direct/range {v0 .. v6}, Lcom/cyo/comicrack/viewer/u;->a(Landroid/widget/TableLayout;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V\n\n"
+     "    return-void\n.end method\n\n"
+     ".method private a(Landroid/widget/TableLayout;ILjava/lang/String;Ljava/lang/String;)V\n    .locals 7\n"),
+
     # Google Analytics endpoint -> reserved never-resolving domain (RFC 2606 ".invalid"),
     # on top of the tracking flags forced off in patch_fork.py.
     ("smali/com/a/b/a/a/r.smali",
