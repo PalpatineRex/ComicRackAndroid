@@ -268,6 +268,25 @@ EDITS += [
      + "\n\n    .line 183\n    invoke-virtual {p0}, Lcom/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment;->getPreferenceScreen()"),
 ]
 
+# ComicBook.xml / MetronInfo.xml (CE): the CBZ reader (comic source a/b/o) looks for ComicInfo.xml
+# only. Without one it now takes ComicBook.xml or MetronInfo.xml (cra.fork.Meta.pick), and whatever
+# file it found is converted to ComicInfo content (Meta.convert) before the app's own parser.
+EDITS += [
+    ("smali/com/cyo/comicrack/a/b/o.smali",
+     "    const-string v2, \"ComicInfo.xml\"\n\n    invoke-static {v3, v2}, Lcom/cyo/comicrack/a/b/o;->a(Ljava/util/zip/ZipFile;Ljava/lang/String;)Ljava/util/zip/ZipEntry;\n\n"
+     "    move-result-object v2\n\n    .line 79\n    if-eqz v2, :cond_11\n",
+     "    const-string v2, \"ComicInfo.xml\"\n\n    invoke-static {v3, v2}, Lcom/cyo/comicrack/a/b/o;->a(Ljava/util/zip/ZipFile;Ljava/lang/String;)Ljava/util/zip/ZipEntry;\n\n"
+     "    move-result-object v2\n\n"
+     + block("if-nez v2, :cra_meta_have",
+             "invoke-static {v3}, Lcra/fork/Meta;->pick(Ljava/util/zip/ZipFile;)Ljava/util/zip/ZipEntry;",
+             "move-result-object v2") + "\n\n    :cra_meta_have\n    .line 79\n    if-eqz v2, :cond_11\n"),
+    ("smali/com/cyo/comicrack/a/b/o.smali",
+     "    invoke-virtual {v3, v2}, Ljava/util/zip/ZipFile;->getInputStream(Ljava/util/zip/ZipEntry;)Ljava/io/InputStream;\n\n    move-result-object v2\n\n    sget v4, Lcom/cyo/comicrack/a/a/cc;->u:I\n",
+     "    invoke-virtual {v3, v2}, Ljava/util/zip/ZipFile;->getInputStream(Ljava/util/zip/ZipEntry;)Ljava/io/InputStream;\n\n    move-result-object v2\n\n"
+     + block("invoke-static {v2}, Lcra/fork/Meta;->convert(Ljava/io/InputStream;)Ljava/io/InputStream;",
+             "move-result-object v2") + "\n\n    sget v4, Lcom/cyo/comicrack/a/a/cc;->u:I\n"),
+]
+
 # Banner manager common/view/a: the slots (a, b(I), constructor) are still used for layout
 # bookkeeping; everything that created, showed or released ad views does nothing now.
 STUBS = [
