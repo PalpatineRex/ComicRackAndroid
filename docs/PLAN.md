@@ -72,12 +72,13 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   80% of a screen), volume keys and double-tap / pinch zoom (`ContReader.Zoom`). Tested on an Android 7.1
   emulator (x86, software emulation): setting appears, CBZ and RAR5 comics open as a strip, pages are
   sharp, the page counter follows the scroll, Back leaves, the position is saved and restored; tap zones and volume keys work. Zoom gestures could not be
-  exercised (adb input cannot produce a reliable double-tap/pinch on that emulator): untested.
+  exercised on the emulator (adb input cannot produce a reliable double-tap/pinch); the maintainer
+  checked them on a phone: they work.
 - MetronInfo.xml / ComicBook.xml metadata: done in 2.9.186 (`cra.fork.Meta`, hooked in the CBZ
   source `o.b()`): ComicInfo.xml still wins; otherwise ComicBook.xml (root renamed to ComicInfo) or
   MetronInfo.xml (mapped as in CE's MetronInfoProvider) is converted to ComicInfo on the fly. Checked
   on the emulator with `tests/fixtures/cra_test_comicbook.cbz` and `cra_test_metron.cbz`. Translator
-  field: not done.
+  field: done in 2.9.186 (below).
 - JpegXL pages (CE 0.9.184): done in 2.9.186. Android has no JXL decoder before 14, so the release
   APK bundles jxl-coder 2.6.1 (github.com/awxkee/jxl-coder, Apache-2.0 / BSD-3; libjxl + Brotli):
   `tools/add_native.py` adds its `.so` files under `lib/` (arm64-v8a, armeabi-v7a, x86; AAR from Maven
@@ -134,3 +135,14 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 - Android 14 refuses targetSdk < 23 without `--bypass-low-target-sdk-block`; targetSdk is now 25,
   so this should be solved (?) - to test on an Android 14 device. Fresh installs must grant storage
   in Settings until the app requests it itself.
+
+### Translator field
+`<Translator>` (ComicInfo.xml, ComicBook.xml, MetronInfo role "Translator") is read and shown in the comic
+details, under Writer. Changes (`tools/patch_smali.py`): field `cra_translator` on ComicInfo
+(`com.cyo.comicrack.a.a.b`); parser element `Translator` (`cra.fork.TrSet`, same shape as the app's
+own setters); library database version 4 -> 5 (`ALTER TABLE books ADD COLUMN Translator TEXT`, run on
+upgrade and after the create script; reading progress and ratings are kept); column read through
+`cra.fork.Tr.col` (tolerates a missing column); detail row `u.cra_translator` (label as plain text, no
+resource). Existing entries get the value when their file is rescanned. Checked on the emulator (upgrade
+from v4, fixture `tests/fixtures/cra_test_translator.cbz`, `sqlite3` and the details screen). Not
+written back: the app never saves Translator into files.
