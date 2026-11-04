@@ -186,7 +186,7 @@ CUTS = [
            "iput-object p3, p0, Lcom/cyo/comicrack/viewer/cr;->c:Landroid/widget/EditText;",
            "iput-object p4, p0, Lcom/cyo/comicrack/viewer/cr;->d:Lcom/cyo/comicrack/a/a/b;",
            "iput-object p5, p0, Lcom/cyo/comicrack/viewer/cr;->e:Lcom/cyo/comicrack/a/b/h;") +
-     "\n\n    .line 963\n    invoke-direct {p0}, Ljava/lang/Object;-><init>()V"),
+     "\n\n"),
     # ch (dialog dismissed): it saved the checkbox state, then restores the screen and runs
     # the Runnable; only the last two remain. New constructor (app, activity, runnable).
     (RV + "ch.smali", ".field private final synthetic b:Landroid/content/SharedPreferences;",
@@ -200,7 +200,7 @@ CUTS = [
      block("iput-object p1, p0, Lcom/cyo/comicrack/viewer/ch;->a:Lcom/cyo/comicrack/viewer/ComicRackApplication;",
            "iput-object p2, p0, Lcom/cyo/comicrack/viewer/ch;->d:Landroid/app/Activity;",
            "iput-object p3, p0, Lcom/cyo/comicrack/viewer/ch;->e:Ljava/lang/Runnable;") +
-     "\n\n    .line 1020\n    invoke-direct {p0}, Ljava/lang/Object;-><init>()V"),
+     "\n\n"),
     (RV + "ch.smali", "    .line 1024\n    iget-object v0, p0, Lcom/cyo/comicrack/viewer/ch;->b:", "    .line 1026\n", ""),
     # The id of the removed checkbox
     (RV + "fs.smali", ".field public static final comicRatingTweet:I = 0x7f0c0091\n\n", ".field", ""),
