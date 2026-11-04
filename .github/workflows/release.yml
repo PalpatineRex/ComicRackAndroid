@@ -1,7 +1,7 @@
 # Builds the fork APK from the original ComicRack 1.80 APK and, for a version tag,
 # publishes it as a GitHub Release (what the in-app update check reads).
 #
-# - Push a tag "2.9.187" (or "2.9.187.1" for an Android-only fix): CE version 0.9.187
+# - Push a tag "2.9.187" (always the CE number, no 4th component): CE version 0.9.187
 #   (rev 1) is derived from it, the APK is built, every check of verify_build.py must
 #   pass, it is signed with the repository secrets SIGNING_KEY_PEM / SIGNING_CERT_PEM
 #   and published as release "2.9.187" with one .apk asset.

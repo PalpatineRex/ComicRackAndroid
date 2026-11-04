@@ -102,7 +102,7 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 
 ### Written, built and verified in CI (dry run), not yet run on a device
 - Update check (`tools/smali/cra/fork/Updater.smali`, `UpdatePrompt.smali`): at most once a day when
-  the library opens, reads `releases/latest` of this repo; tag `2.9.187` / `v2.9.187.1` -> versionCode
+  the library opens, reads `releases/latest` of this repo; tag `2.9.187` -> versionCode
   with the build formula; if newer, "Version X is available. Update now?" -> opens the release's `.apk`
   asset in the browser (download + system installer). No release / no network = nothing happens.
   Release rules: tag = versionName, one `.apk` asset, same signing key every time.

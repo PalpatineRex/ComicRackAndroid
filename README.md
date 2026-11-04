@@ -59,7 +59,7 @@ transfer has **not been tested yet**; reports are welcome in the [issues](../../
 
 - Build: `python tools/build.py --base ComicRack.1.80.apk --ce-version 0.9.186 --apktool apktool_2.9.3.jar --key key.pem --cert cert.pem --out ComicRackAndroid.apk`
   (Python 3.10+, Java 8+, `pip install cryptography androguard loguru`). `verify_build.py` must pass.
-- Release: push a tag like `2.9.187` (`2.9.187.1` for an Android-only fix);
+- Release: push a tag like `2.9.187` (same number as CE, never a 4th component; a fix before CE moves is re-tagged on the same number);
   [`.github/workflows/release.yml`](.github/workflows/release.yml) builds, verifies, signs with the
   `SIGNING_KEY_PEM` / `SIGNING_CERT_PEM` secrets and publishes. A manual run is a dry run.
 - New CE builds open an issue automatically ([`ce-watch.yml`](.github/workflows/ce-watch.yml)).
