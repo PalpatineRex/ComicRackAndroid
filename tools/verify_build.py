@@ -90,9 +90,11 @@ def main() -> None:
     if want_code:
         checks.append((f"versionCode {want_code}", apk.get_androidversion_code() == str(want_code)))
     names = {c.get_name() for c in dex.get_classes()}
-    ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;"}
+    ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;",
+            "Lcra/fork/Rar5Fix;", "Lcra/fork/Rar5Reader;", "Lcra/fork/Rar5Reader$Entry;",
+            "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;"}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
-    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms), no test class",
+    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*), no test class",
                    len(names) == 1421 - 376 + len(ours) and ours <= names and not test_classes))
     # Dead code (AdMob, twitter4j, the Twitter module) is gone and nothing names it any more:
     # every class a declaration or instruction refers to has its descriptor in the string table.
@@ -119,6 +121,9 @@ def main() -> None:
     res = method_ins(dex, "Lcom/cyo/comicrack/viewer/LibraryActivity;", "onRequestPermissionsResult") or []
     checks.append(("Permission answer handled (restart on grant)",
                    any("Lcra/fork/Perms;->onResult(" in o for _, o in res)))
+    rar = method_ins(dex, "Lcom/cyo/common/c/a;", "<init>", "(Ljava/io/File;)V") or []
+    checks.append(("RAR reader opens files through Rar5Fix.prepare (RAR5 support)",
+                   any("Lcra/fork/Rar5Fix;->prepare(" in o for _, o in rar)))
     checks.append(("Update check reads this repo's releases",
                    "https://api.github.com/repos/PalpatineRex/ComicRackAndroid/releases/latest" in strings))
 
