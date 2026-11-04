@@ -112,6 +112,37 @@ EDITS = [
            "invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z") +
      "\n\n    :cra_img_end\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;"),
 
+    # JPEG XL pages: every page/thumbnail decode goes through cra.fork.Img (BitmapFactory unless the data is JXL)
+    ("smali/com/cyo/comicrack/a/b/k.smali",
+     "invoke-static {v1, v4, v0}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;",
+     "invoke-static {v1, v4, v0}, Lcra/fork/Img;->decode(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;"),
+    ("smali/com/cyo/comicrack/a/b/k.smali",
+     "invoke-static {v4, v8, v7}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;",
+     "invoke-static {v4, v8, v7}, Lcra/fork/Img;->decode(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;"),
+    ("smali/com/cyo/comicrack/a/b/o.smali",
+     "invoke-static {v7, v8, v5}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;",
+     "invoke-static {v7, v8, v5}, Lcra/fork/Img;->decode(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;"),
+    ("smali/com/cyo/comicrack/a/b/o.smali",
+     "invoke-static {v0, v5, v7}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;",
+     "invoke-static {v0, v5, v7}, Lcra/fork/Img;->decode(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;"),
+    ("smali/com/cyo/comicrack/a/b/o.smali",
+     "invoke-static {v8, v9, v7}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;",
+     "invoke-static {v8, v9, v7}, Lcra/fork/Img;->decode(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;"),
+    ("smali/com/cyo/comicrack/a/b/o.smali",
+     "invoke-static {v5, v10, v9}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;",
+     "invoke-static {v5, v10, v9}, Lcra/fork/Img;->decode(Ljava/io/InputStream;Landroid/graphics/Rect;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;"),
+
+    # JPEG XL: ".jxl" is accepted as a page extension (Android 5+, where the bundled library loads)
+    (J_SMALI,
+     "    :cra_img_end\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;",
+     "    :cra_img_end\n" +
+     block("sget v2, Landroid/os/Build$VERSION;->SDK_INT:I",
+           "const/16 v3, 0x15",
+           "if-lt v2, v3, :cra_jxl_skip",
+           'const-string v2, ".jxl"',
+           "invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z") +
+     "\n\n    :cra_jxl_skip\n\n    sput-object v0, Lcom/cyo/comicrack/a/b/j;->d:Ljava/util/List;"),
+
     # Google Analytics endpoint -> reserved never-resolving domain (RFC 2606 ".invalid"),
     # on top of the tracking flags forced off in patch_fork.py.
     ("smali/com/a/b/a/a/r.smali",

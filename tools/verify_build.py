@@ -93,10 +93,11 @@ def main() -> None:
     ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;",
             "Lcra/fork/Rar5Fix;", "Lcra/fork/Rar5Reader;", "Lcra/fork/Rar5Reader$Entry;",
             "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;",
-            "Lcra/fork/Cont;", "Lcra/fork/Meta;"}
+            "Lcra/fork/Cont;", "Lcra/fork/Meta;", "Lcra/fork/Img;",
+            "Lcom/awxkee/jxlcoder/JxlCoder;"}
     cont = {n for n in names if n.startswith("Lcra/fork/ContReader")}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
-    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*), no test class",
+    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*, Meta, Img, JxlCoder), no test class",
                    len(names) == 1421 - 376 + len(ours) + len(cont) and ours <= names and not test_classes))
     # Dead code (AdMob, twitter4j, the Twitter module) is gone and nothing names it any more:
     # every class a declaration or instruction refers to has its descriptor in the string table.
@@ -161,6 +162,19 @@ def main() -> None:
                    {"__macosx/", "/._", "._"} <= filter_strings))
     checks.append(("CE: HEIF/AVIF pages accepted (.heic .heif .avif)",
                    {".heic", ".heif", ".avif"} <= filter_strings))
+    checks.append(("CE: JPEG XL pages accepted (.jxl)", ".jxl" in filter_strings))
+    for cls, want in (("Lcom/cyo/comicrack/a/b/k;", 2), ("Lcom/cyo/comicrack/a/b/o;", 4)):
+        calls = [o for c in dex.get_classes() if c.get_name() == cls for m in c.get_methods()
+                 if m.get_code() for _, o in [(i.get_name(), i.get_output()) for i in m.get_instructions()]
+                 if "Lcra/fork/Img;->decode(" in o]
+        raw = [o for c in dex.get_classes() if c.get_name() == cls for m in c.get_methods()
+               if m.get_code() for i in m.get_instructions()
+               for o in [i.get_output()] if "BitmapFactory;->decodeStream(" in o]
+        checks.append((f"CE: JPEG XL decode hook ({cls[1:-1].rsplit('/', 1)[1]}: {want} page decodes via Img.decode)",
+                       len(calls) == want and not raw))
+    libs = {n for n in z.namelist() if n.startswith("lib/") and n.endswith("/libjxlcoder.so")}
+    checks.append(("CE: JPEG XL native libraries bundled (lib/*/libjxlcoder.so, arm64-v8a included)",
+                   "lib/arm64-v8a/libjxlcoder.so" in libs and len(libs) >= 2))
     cmp_ = method_ins(dex, "Lcom/cyo/comicrack/a/a/ce;", "compareTo") or []
     bic = method_ins(dex, "Lcom/cyo/common/bi;", "c", "(Ljava/lang/String; Ljava/lang/String;)I") or []
     checks.append(("CE: natural library sort (bi.c -> Natural.compare)",

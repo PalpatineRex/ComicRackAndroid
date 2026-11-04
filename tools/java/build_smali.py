@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile tools/java/**/*.java to Dalvik smali (tools/smali/cra/fork/<Name>.smali).
+"""Compile tools/java/**/*.java to Dalvik smali (tools/smali/<package>/<Name>.smali).
 
 The generated smali is committed, so a normal build does not need the Android SDK; run this only
 after changing the Java. Needs: JDK 11+, an Android SDK with build-tools (d8) and a platform
@@ -60,11 +60,13 @@ def main():
         dec = os.path.join(tmp, "dec")
         run([java, "-jar", a.apktool, "d", "--no-res", "-f", "-o", dec, apk])
         smali = os.path.join(dec, "smali")
-        dst = os.path.join(OUT, "cra", "fork")
-        for path in glob.glob(os.path.join(smali, "cra", "fork", "*.smali")):
-            name = os.path.basename(path)
-            shutil.copyfile(path, os.path.join(dst, name))
-            print("wrote", os.path.join(dst, name))
+        for pkg in (("cra", "fork"), ("com", "awxkee", "jxlcoder")):
+            dst = os.path.join(OUT, *pkg)
+            os.makedirs(dst, exist_ok=True)
+            for path in glob.glob(os.path.join(smali, *pkg, "*.smali")):
+                name = os.path.basename(path)
+                shutil.copyfile(path, os.path.join(dst, name))
+                print("wrote", os.path.join(dst, name))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

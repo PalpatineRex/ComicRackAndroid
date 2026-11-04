@@ -4,9 +4,10 @@
 Usage:
   build.py --base ComicRack.1.80.apk --ce-version 0.9.186 [--rev N]
            --apktool apktool.jar --key key.pem --cert cert.pem --out OUT.apk
+           [--jxl-aar jxl-coder.aar] [--jxl-abis arm64-v8a,armeabi-v7a,x86]
 
 Steps (each tool is also usable alone, see docs/PLAN.md):
-  patch_lvl -> patch_fork -> patch_manifest -> patch_smali -> prune_res -> verify_build -> sign_v1
+  patch_lvl -> patch_fork -> patch_manifest -> patch_smali -> prune_res -> add_native -> verify_build -> sign_v1
 Needs Python 3.10+, Java (for apktool), and pip packages: cryptography, androguard, loguru.
 Stops at the first failure; nothing is signed if verification fails.
 """
@@ -47,20 +48,24 @@ def main() -> None:
     key = take(args, "--key")
     cert = take(args, "--cert")
     out = take(args, "--out")
+    jxl_aar = take(args, "--jxl-aar", "")
+    jxl_abis = take(args, "--jxl-abis", "arm64-v8a,armeabi-v7a,x86")
     if args:
         raise SystemExit(f"unknown arguments: {args}")
     name, code = fork_version(ce, int(rev))
     print(f"building {name} (versionCode {code}) from CE {ce}")
     t = lambda n: os.path.join(HERE, n)  # noqa: E731
     with tempfile.TemporaryDirectory(prefix="cra_build_") as tmp:
-        s = [os.path.join(tmp, f"s{i}.apk") for i in range(1, 6)]
+        s = [os.path.join(tmp, f"s{i}.apk") for i in range(1, 7)]
         step("py", t("patch_lvl.py"), base, s[0])
         step("py", t("patch_fork.py"), s[0], s[1], name)
         step("py", t("patch_manifest.py"), s[1], s[2], "--ce-version", ce, "--rev", rev)
         step("py", t("patch_smali.py"), s[2], s[3], "--apktool", apktool)
         step("py", t("prune_res.py"), s[3], s[4], "--apktool", apktool)
-        step("py", t("verify_build.py"), s[4], "--version-name", name, "--version-code", str(code))
-        step("py", t("sign_v1.py"), "sign", s[4], out, key, cert)
+        native = ["--abis", jxl_abis] + (["--aar", jxl_aar] if jxl_aar else [])
+        step("py", t("add_native.py"), s[4], s[5], *native)
+        step("py", t("verify_build.py"), s[5], "--version-name", name, "--version-code", str(code))
+        step("py", t("sign_v1.py"), "sign", s[5], out, key, cert)
     print(f"done: {out} ({name}, {code})")
 
 
