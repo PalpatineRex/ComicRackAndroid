@@ -52,9 +52,14 @@ def main():
         os.makedirs(dex)
         run([java, "-cp", d8_jar, "com.android.tools.r8.D8", "--release", "--min-api", "21",
              "--lib", android_jar, "--output", dex] + classes)
-        smali = os.path.join(tmp, "smali")
-        run([java, "-cp", a.apktool, "com.android.tools.smali.baksmali.Main", "disassemble",
-             "--api", "21", "-o", smali, os.path.join(dex, "classes.dex")])
+        # apktool bundles baksmali but not its command line: let apktool decode a dex-only zip.
+        import zipfile
+        apk = os.path.join(tmp, "cls.apk")
+        with zipfile.ZipFile(apk, "w") as z:
+            z.write(os.path.join(dex, "classes.dex"), "classes.dex")
+        dec = os.path.join(tmp, "dec")
+        run([java, "-jar", a.apktool, "d", "--no-res", "-f", "-o", dec, apk])
+        smali = os.path.join(dec, "smali")
         dst = os.path.join(OUT, "cra", "fork")
         for path in glob.glob(os.path.join(smali, "cra", "fork", "*.smali")):
             name = os.path.basename(path)
