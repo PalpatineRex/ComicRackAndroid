@@ -41,7 +41,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
     private final Method pageBitmap;
     private final int pages;
     private final ListView list;
-    private final TextView label;
+    private TextView label;
     private final int rowMin;
     private int shown = -1;
     private final Handler ui = new Handler(Looper.getMainLooper());
@@ -117,7 +117,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
     }
 
     private void show(int first) {
-        if (first == shown || pages == 0) return;
+        if (label == null || first == shown || pages == 0) return;
         shown = first;
         label.setText((first + 1) + " / " + pages);
     }
