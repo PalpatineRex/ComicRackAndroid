@@ -49,8 +49,12 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   ("Port ComicRack CE X (Android 2.Y.Z)"). Dry run tested on GitHub.
 
 ### CE features still to port (Android-relevant)
-- Go To page in the reader.
-- RAR5 (the app's RAR reader dates from 2014; to test with a RAR5 CBR).
+- Go To page in the reader: already in the app (dialog behind the "Go to page" reader action,
+  assignable in Controls). Nothing to port.
+- RAR5: not supported. The app's RAR reader (`com.cyo.common.c.a`) is a RAR 1.x-4 port, so a RAR5
+  CBR (signature `52 61 72 21 1A 07 01 00`) is rejected. Writing a RAR5 decoder in smali is a large
+  job; for now, convert such files to CBZ. Real RAR5 samples for the on-device check: rarfile's
+  `test/files/rar5-*.rar`.
 - Continuous reading mode (webtoon / vertical strip).
 - MetronInfo.xml / ComicBook.xml metadata, Translator field.
 
