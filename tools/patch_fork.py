@@ -63,17 +63,6 @@ REMOVED_PREFERENCES = ["preference_category_general_social", "tracking_enabled"]
 
 # Fork release notes, newest first. Same layout as the original changes.txt.
 FORK_CHANGES = {
-    "2.9.186.4": [
-        "From CE: JPEG XL pages (.jxl) open, decoded by the bundled jxl-coder / libjxl library (the app grows by about 14 MB)",
-    ],
-    "2.9.186.3": [
-        "Continuous mode: tap the top or bottom of the screen (or use the volume keys) to move a page, double-tap and pinch to zoom",
-        "ComicBook.xml and MetronInfo.xml metadata are now read, as well as ComicInfo.xml",
-    ],
-    "2.9.186.2": ["New reading setting: Continuous mode (Settings > Reading and display). Pages are shown as one vertical strip you scroll, and your position is saved"],
-    "2.9.186.1": [
-        "RAR5 comics (.cbr) now open: converted once into the app's cache, then read as before",
-    ],
     "2.9.186": [
         "Community fork, maintained at github.com/PalpatineRex/ComicRackAndroid",
         "Version numbers follow ComicRack Community Edition (2.9.186 = CE 0.9.186)",
@@ -81,6 +70,10 @@ FORK_CHANGES = {
         "From CE: French articles (Le, La, Les, L') are ignored when sorting series",
         'From CE: "__MACOSX" and "._" files inside archives are ignored',
         "From CE: HEIF/HEIC pages (Android 9+) and AVIF pages (Android 12+)",
+        "From CE: JPEG XL pages (.jxl), decoded by the bundled jxl-coder / libjxl library (the app grows by about 14 MB)",
+        "From CE: RAR5 comics (.cbr) open (converted once into the app's cache, then read as before)",
+        "From CE: ComicBook.xml and MetronInfo.xml metadata are read, as well as ComicInfo.xml",
+        "From CE: Continuous mode (Settings > Reading and display): pages as one vertical strip, position saved; tap the top or bottom of the screen or use the volume keys to move a page, double-tap and pinch to zoom",
         'Targets Android 7.1: no more "built for an older version of Android" warning',
         "Uses the full screen on tall phones (no more empty band at the bottom)",
         "Removed the Google Play license check (the store listing no longer exists)",

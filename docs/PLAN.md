@@ -51,7 +51,7 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 ### CE features still to port (Android-relevant)
 - Go To page in the reader: already in the app (dialog behind the "Go to page" reader action,
   assignable in Controls). Nothing to port.
-- RAR5: supported since 2.9.186.1. The app's RAR reader (`com.cyo.common.c.a`) only knows RAR 1.x-4,
+- RAR5: supported. The app's RAR reader (`com.cyo.common.c.a`) only knows RAR 1.x-4,
   so its constructor first calls `cra.fork.Rar5Fix.prepare`: a RAR5 file (signature
   `52 61 72 21 1A 07 01 00`) is converted once into a RAR4 archive with stored entries in the app's
   cache (one converted file kept), and the unchanged reader opens that. The decoder is plain Java
@@ -62,23 +62,23 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   multi-volume archives; the first open of a big RAR5 comic takes a while (full conversion); the
   library scan converts each RAR5 file it reads, so CBZ stays faster. Not run through the reader UI
   yet.
-- Continuous reading mode (webtoon / vertical strip): written for 2.9.186.2 (setting "Continuous mode"
+- Continuous reading mode (webtoon / vertical strip): written for 2.9.186 (setting "Continuous mode"
   in Settings > Reading and display, off by default). When a comic has loaded, `cra.fork.Cont.open`
   (hooked in `gn.onPostExecute`) replaces the reader's screen with a vertical list of pages
   (`cra.fork.ContReader`, plain Java in `tools/java`); it reads pages through the app's own comic
   source (reflection on the obfuscated classes), keeps a bitmap cache, shows "page / total", starts at
   the saved page and saves the position and reading history on pause. Back leaves the reader. No page-turn
-  animations in this mode (the strip is scrolled). 2.9.186.3 adds tap zones (top/bottom 30% scroll
+  animations in this mode (the strip is scrolled). also has tap zones (top/bottom 30% scroll
   80% of a screen), volume keys and double-tap / pinch zoom (`ContReader.Zoom`). Tested on an Android 7.1
   emulator (x86, software emulation): setting appears, CBZ and RAR5 comics open as a strip, pages are
   sharp, the page counter follows the scroll, Back leaves, the position is saved and restored; tap zones and volume keys work. Zoom gestures could not be
   exercised (adb input cannot produce a reliable double-tap/pinch on that emulator): untested.
-- MetronInfo.xml / ComicBook.xml metadata: done in 2.9.186.3 (`cra.fork.Meta`, hooked in the CBZ
+- MetronInfo.xml / ComicBook.xml metadata: done in 2.9.186 (`cra.fork.Meta`, hooked in the CBZ
   source `o.b()`): ComicInfo.xml still wins; otherwise ComicBook.xml (root renamed to ComicInfo) or
   MetronInfo.xml (mapped as in CE's MetronInfoProvider) is converted to ComicInfo on the fly. Checked
   on the emulator with `tests/fixtures/cra_test_comicbook.cbz` and `cra_test_metron.cbz`. Translator
   field: not done.
-- JpegXL pages (CE 0.9.184): done in 2.9.186.4. Android has no JXL decoder before 14, so the release
+- JpegXL pages (CE 0.9.184): done in 2.9.186. Android has no JXL decoder before 14, so the release
   APK bundles jxl-coder 2.6.1 (github.com/awxkee/jxl-coder, Apache-2.0 / BSD-3; libjxl + Brotli):
   `tools/add_native.py` adds its `.so` files under `lib/` (arm64-v8a, armeabi-v7a, x86; AAR from Maven
   Central, SHA-256 pinned, never committed). Its Kotlin classes are not used: `com.awxkee.jxlcoder.JxlCoder`
