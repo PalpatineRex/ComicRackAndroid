@@ -90,6 +90,10 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
         };
         list.setDivider(null);
         list.setCacheColorHint(Color.BLACK);
+        // blank footer: lets the last page scroll up to the top (and a saved position be restored)
+        View footer = new View(host);
+        footer.setLayoutParams(new AbsListView.LayoutParams(-1, dm.heightPixels));
+        list.addFooterView(footer, null, false);
         list.setAdapter(new Pages());
         list.setOnScrollListener(new AbsListView.OnScrollListener() {
             public void onScrollStateChanged(AbsListView v, int s) {}
@@ -98,10 +102,7 @@ final class ContReader implements Application.ActivityLifecycleCallbacks {
                 View top = v.getChildAt(0);
                 // the page that fills most of the screen counts as the current one
                 if (top != null && top.getBottom() < v.getHeight() / 2 && first + 1 < total) first++;
-                View last = v.getChildAt(v.getChildCount() - 1);
-                if (last != null && first + visible >= total && last.getBottom() <= v.getHeight() + 2) {
-                    first = total - 1; // end of the strip: last page
-                }
+                if (first > pages - 1) first = pages - 1; // the footer is not a page
                 show(first);
             }
         });
