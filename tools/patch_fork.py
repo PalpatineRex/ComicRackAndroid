@@ -63,6 +63,9 @@ REMOVED_PREFERENCES = ["preference_category_general_social", "tracking_enabled"]
 
 # Fork release notes, newest first. Same layout as the original changes.txt.
 FORK_CHANGES = {
+    "2.9.186.1": [
+        "RAR5 comics (.cbr) now open: converted once into the app's cache, then read as before",
+    ],
     "2.9.186": [
         "Community fork, maintained at github.com/PalpatineRex/ComicRackAndroid",
         "Version numbers follow ComicRack Community Edition (2.9.186 = CE 0.9.186)",
@@ -84,9 +87,16 @@ FORK_CHANGES = {
 }
 
 
-def history_header() -> bytes:
+def history_header(upto: str = "") -> bytes:
+    """Notes of every version up to (and including) the one being built, newest first."""
     lines = []
-    for version, items in FORK_CHANGES.items():
+    versions = list(FORK_CHANGES)
+    if upto:
+        if upto not in FORK_CHANGES:
+            raise SystemExit(f"no release notes for version {upto}")
+        versions = versions[versions.index(upto):]
+    for version in versions:
+        items = FORK_CHANGES[version]
         lines.append(f"V{version}:")
         lines.append("")
         lines += ["• " + item for item in items]
@@ -130,9 +140,10 @@ def patch_about(raw: bytes) -> bytes:
 
 
 def main() -> None:
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         raise SystemExit(__doc__)
     src, dst = sys.argv[1], sys.argv[2]
+    version = sys.argv[3] if len(sys.argv) == 4 else ""
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
         for info in zin.infolist():
             if is_signature_entry(info.filename):
@@ -154,7 +165,7 @@ def main() -> None:
             elif info.filename == "res/raw/changes.txt":
                 if not data.startswith(b"V1.80:"):
                     raise SystemExit("changes.txt: unexpected start, refusing to patch")
-                data = history_header() + data
+                data = history_header(version) + data
                 print("changes.txt: fork release notes added")
             out = zipfile.ZipInfo(info.filename, date_time=info.date_time)
             out.compress_type = info.compress_type

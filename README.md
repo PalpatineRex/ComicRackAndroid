@@ -42,7 +42,9 @@ transfer has **not been tested yet**; reports are welcome in the [issues](../../
 
 ## Known limits
 
-- **RAR5** CBR files are not supported (the app's RAR reader handles RAR 1.x-4). Convert them to CBZ.
+- **RAR5** CBR files open (since 2.9.186.1) through a one-time conversion: the first open of a big
+  file is slow and the library scan is slower than with CBZ. Encrypted and multi-volume RAR5 are not
+  supported.
 - No continuous / webtoon reading mode, no MetronInfo.xml / ComicBook.xml metadata (ComicInfo.xml
   only), no JpegXL pages (CE 0.9.184).
 - Releases are checked on an Android 13 phone, not on every Android version.

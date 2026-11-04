@@ -51,10 +51,17 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
 ### CE features still to port (Android-relevant)
 - Go To page in the reader: already in the app (dialog behind the "Go to page" reader action,
   assignable in Controls). Nothing to port.
-- RAR5: not supported. The app's RAR reader (`com.cyo.common.c.a`) is a RAR 1.x-4 port, so a RAR5
-  CBR (signature `52 61 72 21 1A 07 01 00`) is rejected. Writing a RAR5 decoder in smali is a large
-  job; for now, convert such files to CBZ. Real RAR5 samples for the on-device check: rarfile's
-  `test/files/rar5-*.rar`.
+- RAR5: supported since 2.9.186.1. The app's RAR reader (`com.cyo.common.c.a`) only knows RAR 1.x-4,
+  so its constructor first calls `cra.fork.Rar5Fix.prepare`: a RAR5 file (signature
+  `52 61 72 21 1A 07 01 00`) is converted once into a RAR4 archive with stored entries in the app's
+  cache (one converted file kept), and the unchanged reader opens that. The decoder is plain Java
+  (`tools/java/cra/fork`), compiled to smali by `tools/java/build_smali.py` (needs an Android SDK;
+  the generated smali is committed, so normal builds do not). Checked: libarchive and rarfile RAR5
+  samples (LZ, solid, ARM filter, stored; CRC verified), and the patched app's own reader on a
+  phone via `tests/java/cra/test/Rar5Probe.java` (`app_process`). Limits: no encrypted or
+  multi-volume archives; the first open of a big RAR5 comic takes a while (full conversion); the
+  library scan converts each RAR5 file it reads, so CBZ stays faster. Not run through the reader UI
+  yet.
 - Continuous reading mode (webtoon / vertical strip): not done. The reader draws one page at a time
   (Reading and display has no such option); a strip mode means rewriting its page view in smali,
   too risky to do blind. Open for a contributor with source-level tooling.

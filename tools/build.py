@@ -55,7 +55,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="cra_build_") as tmp:
         s = [os.path.join(tmp, f"s{i}.apk") for i in range(1, 6)]
         step("py", t("patch_lvl.py"), base, s[0])
-        step("py", t("patch_fork.py"), s[0], s[1])
+        step("py", t("patch_fork.py"), s[0], s[1], name)
         step("py", t("patch_manifest.py"), s[1], s[2], "--ce-version", ce, "--rev", rev)
         step("py", t("patch_smali.py"), s[2], s[3], "--apktool", apktool)
         step("py", t("prune_res.py"), s[3], s[4], "--apktool", apktool)
