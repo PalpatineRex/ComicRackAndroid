@@ -16,3 +16,7 @@ work/
 local.properties
 __pycache__/
 *.pyc
+
+# Downloaded native libraries (tools/add_native.py)
+tools/.cache/
+*.aar
