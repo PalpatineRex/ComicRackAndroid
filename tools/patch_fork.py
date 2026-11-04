@@ -63,6 +63,10 @@ REMOVED_PREFERENCES = ["preference_category_general_social", "tracking_enabled"]
 
 # Fork release notes, newest first. Same layout as the original changes.txt.
 FORK_CHANGES = {
+    "2.9.186.3": [
+        "Continuous mode: tap the top or bottom of the screen (or use the volume keys) to move a page, double-tap and pinch to zoom",
+        "ComicBook.xml and MetronInfo.xml metadata are now read, as well as ComicInfo.xml",
+    ],
     "2.9.186.2": ["New reading setting: Continuous mode (Settings > Reading and display). Pages are shown as one vertical strip you scroll, and your position is saved"],
     "2.9.186.1": [
         "RAR5 comics (.cbr) now open: converted once into the app's cache, then read as before",

@@ -67,12 +67,17 @@ Needs Python 3.10+, Java 8+, `pip install cryptography androguard loguru`, apkto
   (hooked in `gn.onPostExecute`) replaces the reader's screen with a vertical list of pages
   (`cra.fork.ContReader`, plain Java in `tools/java`); it reads pages through the app's own comic
   source (reflection on the obfuscated classes), keeps a bitmap cache, shows "page / total", starts at
-  the saved page and saves the position and reading history on pause. Back leaves the reader. No zoom,
-  no tap zones, no page-turn animations in this mode (the strip is scrolled). Tested on an Android 7.1
+  the saved page and saves the position and reading history on pause. Back leaves the reader. No page-turn
+  animations in this mode (the strip is scrolled). 2.9.186.3 adds tap zones (top/bottom 30% scroll
+  80% of a screen), volume keys and double-tap / pinch zoom (`ContReader.Zoom`). Tested on an Android 7.1
   emulator (x86, software emulation): setting appears, CBZ and RAR5 comics open as a strip, pages are
-  sharp, the page counter follows the scroll, Back leaves, the position is saved and restored.
-- MetronInfo.xml / ComicBook.xml metadata, Translator field: not done (the app only reads
-  ComicInfo.xml; the parser is obfuscated and a second schema is a sizeable smali job).
+  sharp, the page counter follows the scroll, Back leaves, the position is saved and restored; tap zones and volume keys work. Zoom gestures could not be
+  exercised (adb input cannot produce a reliable double-tap/pinch on that emulator): untested.
+- MetronInfo.xml / ComicBook.xml metadata: done in 2.9.186.3 (`cra.fork.Meta`, hooked in the CBZ
+  source `o.b()`): ComicInfo.xml still wins; otherwise ComicBook.xml (root renamed to ComicInfo) or
+  MetronInfo.xml (mapped as in CE's MetronInfoProvider) is converted to ComicInfo on the fly. Checked
+  on the emulator with `tests/fixtures/cra_test_comicbook.cbz` and `cra_test_metron.cbz`. Translator
+  field: not done.
 - JpegXL pages (CE 0.9.184): not possible, Android has no JXL decoder for this old target.
 
 ### Emulator testing
