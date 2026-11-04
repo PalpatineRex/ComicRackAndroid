@@ -245,6 +245,29 @@ EDITS += [
              "move-result-object p1") + "\n\n    .line 101\n"),
 ]
 
+# Continuous (vertical strip) reading mode, cra.fork.Cont / ContReader (tools/java). When a comic is
+# loaded (gn.onPostExecute), Cont.open swaps the reader's screen for the strip view if the
+# "Continuous mode" setting is on; the setting is added to the reader settings (DisplayFragment).
+EDITS += [
+    ("smali/com/cyo/comicrack/viewer/gn.smali",
+     "    invoke-static {v0, p1, v1, v2}, Lcom/cyo/comicrack/viewer/ReaderActivity;->a(Lcom/cyo/comicrack/viewer/ReaderActivity;"
+     "Lcom/cyo/comicrack/a/b/h;ILcom/cyo/comicrack/viewer/fj;)V\n",
+     block("invoke-static {v0, p1}, Lcra/fork/Cont;->open(Landroid/app/Activity;Ljava/lang/Object;)Z",
+           "move-result v3",
+           "if-nez v3, :goto_0",
+           "invoke-static {v0, p1, v1, v2}, Lcom/cyo/comicrack/viewer/ReaderActivity;->a(Lcom/cyo/comicrack/viewer/ReaderActivity;"
+           "Lcom/cyo/comicrack/a/b/h;ILcom/cyo/comicrack/viewer/fj;)V") + "\n"),
+    ("smali/com/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment.smali",
+     "    .line 183\n    invoke-virtual {p0}, Lcom/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment;->getPreferenceScreen()",
+     block("invoke-virtual {p0}, Lcom/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment;->getActivity()Landroid/app/Activity;",
+           "move-result-object v0",
+           "invoke-virtual {p0}, Lcom/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment;->getPreferenceScreen()"
+           "Landroid/preference/PreferenceScreen;",
+           "move-result-object p1",
+           "invoke-static {v0, p1}, Lcra/fork/Cont;->addPreference(Landroid/content/Context;Landroid/preference/PreferenceGroup;)V")
+     + "\n\n    .line 183\n    invoke-virtual {p0}, Lcom/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment;->getPreferenceScreen()"),
+]
+
 # Banner manager common/view/a: the slots (a, b(I), constructor) are still used for layout
 # bookkeeping; everything that created, showed or released ad views does nothing now.
 STUBS = [

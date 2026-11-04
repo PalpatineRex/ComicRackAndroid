@@ -92,9 +92,10 @@ def main() -> None:
     names = {c.get_name() for c in dex.get_classes()}
     ours = {"Lcra/fork/Natural;", "Lcra/fork/Updater;", "Lcra/fork/UpdatePrompt;", "Lcra/fork/Perms;",
             "Lcra/fork/Rar5Fix;", "Lcra/fork/Rar5Reader;", "Lcra/fork/Rar5Reader$Entry;",
-            "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;"}
+            "Lcra/fork/Rar5Reader$Filter;", "Lcra/fork/Rar5Reader$Lz;", "Lcra/fork/Rar5Reader$1;",
+            "Lcra/fork/Cont;", "Lcra/fork/ContReader;"}
     test_classes = {n for n in names if n.startswith("Lcra/test/")}
-    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*), no test class",
+    checks.append(("classes: 1421 original - 376 dead + cra/fork (Natural, Updater, UpdatePrompt, Perms, Rar5*, Cont*), no test class",
                    len(names) == 1421 - 376 + len(ours) and ours <= names and not test_classes))
     # Dead code (AdMob, twitter4j, the Twitter module) is gone and nothing names it any more:
     # every class a declaration or instruction refers to has its descriptor in the string table.
@@ -124,6 +125,12 @@ def main() -> None:
     rar = method_ins(dex, "Lcom/cyo/common/c/a;", "<init>", "(Ljava/io/File;)V") or []
     checks.append(("RAR reader opens files through Rar5Fix.prepare (RAR5 support)",
                    any("Lcra/fork/Rar5Fix;->prepare(" in o for _, o in rar)))
+    gn = method_ins(dex, "Lcom/cyo/comicrack/viewer/gn;", "onPostExecute", "Ljava/lang/Object;") or []
+    checks.append(("Continuous mode: reader hands loaded comics to Cont.open",
+                   any("Lcra/fork/Cont;->open(" in o for _, o in gn)))
+    dfrag = method_ins(dex, "Lcom/cyo/comicrack/viewer/ComicRackPreferencesActivity$DisplayFragment;", "onCreate") or []
+    checks.append(("Continuous mode: setting added to reader settings",
+                   any("Lcra/fork/Cont;->addPreference(" in o for _, o in dfrag)))
     checks.append(("Update check reads this repo's releases",
                    "https://api.github.com/repos/PalpatineRex/ComicRackAndroid/releases/latest" in strings))
 
